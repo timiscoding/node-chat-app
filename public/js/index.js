@@ -9,10 +9,10 @@ socket.on('disconnect', function () {
 });
 
 socket.on('newMessage', function (message) {
-  console.log('New message', message);
+  var timestamp = moment(message.createdAt).format('h:mm a');
 
   var li = jQuery('<li></li>');
-  li.text(`${message.from}: ${message.text}`);
+  li.text(`${message.from} ${timestamp}: ${message.text}`);
   jQuery('#message-list').append(li);
 });
 
@@ -49,10 +49,11 @@ locationButton.on('click', function() {
 });
 
 socket.on('newLocationMessage', message => {
+  var timestamp = moment(message.createdAt).format('h:mm a');
   var li = jQuery('<li></li>');
   var a = jQuery('<a target="_blank">My current location</a>');
 
-  li.text(`${message.from}: `);
+  li.text(`${message.from} ${timestamp}: `);
   a.attr('href', message.url);
   li.append(a);
   jQuery('#message-list').append(li);
