@@ -56,13 +56,19 @@ describe('users', () => {
 
   it('should find user', () => {
     var user = users.users[0];
-    var foundUser = users.getUser(user.id);
+    var foundUser = users.getUser({id: user.id});
+    expect(foundUser).toEqual(user);
+
+    var foundUser = users.getUser({name: user.name});
     expect(foundUser).toEqual(user);
   });
 
   it('should not find user', () => {
-    var userId = 4124;
-    var foundUser = users.getUser(userId);
+    var user = {id: 4124, name: '4124name'};
+    var foundUser = users.getUser(user.id);
+    expect(foundUser).toBeUndefined;
+
+    var foundUser = users.getUser(user.name);
     expect(foundUser).toBeUndefined;
   });
 });

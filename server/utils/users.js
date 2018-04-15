@@ -10,7 +10,7 @@ class Users {
   }
 
   removeUser(id) {
-    var user = this.getUser(id);
+    var user = Object.assign({}, this.getUser({id}));
 
     if (user) {
       this.users = this.users.filter(user => user.id !== id);
@@ -19,8 +19,8 @@ class Users {
     return user;
   }
 
-  getUser(id) {
-    return this.users.find(user => user.id === id);
+  getUser({id, name}) {
+    return this.users.find(user => user.id === id || user.name === name);
   }
 
   getUserList(room) {
