@@ -196,4 +196,9 @@ button:disabled {
   .chat__footer button {
     margin-right: 0px;
   }
+
+  .chat__footer button:not(:last-child) {
+    margin-right: 0;
+    margin-bottom: 5px;
+  }
 }
