@@ -79,7 +79,8 @@ io.on('connection', socket => {
 app.use(express.static(publicPath));
 app.set('views', 'public');
 app.get('/', (req, res) => {
-  res.render('join', {rooms: users.getRoomList()});
+  var rooms = users.getRoomList();
+  res.render('join', {rooms, roomCount: rooms.length});
 });
 
 server.listen(port, () => {

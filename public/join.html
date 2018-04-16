@@ -18,18 +18,42 @@
         <input id="name" name="name" type="text" autofocus/>
       </div>
       <div class="form-field">
-        <label for="room">Room name</label>
-        <input id="room" name="room" list="rooms"/>
-        <datalist id="rooms">
+        <label>Room name</label>
+        <input id="room-text" name="room" type="text"/>
+
+        <select name="room" id="room-select">
+          <option selected value> -- active rooms ({{roomCount}}) -- </option>
           {{#each rooms}}
           <option value="{{this}}">{{this}}</option>
           {{/each}}
-        </datalist>
+        </select>
       </div>
       <div class="form-field">
         <button>Join</button>
       </div>
     </form>
   </div>
+  <script src="/lib/jquery-3.3.1.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('form').submit(function (e) {
+        e.preventDefault();
+        var data = {
+          name: $('#name').val(),
+          room: $('#room-text').val() || $('#room-select').val()
+        };
+
+        window.location.href = `chat.html?${$.param(data)}`;
+      });
+
+      $('#room-text').change(function() {
+        $('#room-select').val('');
+      });
+
+      $('#room-select').change(function () {
+        $('#room-text').val('');
+      });
+    })
+  </script>
 </body>
 </html>
