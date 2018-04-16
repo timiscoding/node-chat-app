@@ -16,7 +16,7 @@ var scrollToBottom = () => {
 };
 
 socket.on('connect', function () {
-  var params = jQuery.deparam();
+  var params = $.deparam();
 
   socket.emit('join', params, function(err) {
     if (err) {
@@ -55,10 +55,23 @@ socket.on('newMessage', function (message) {
   scrollToBottom();
 });
 
-jQuery('#message-form').on('submit', function(e) {
+socket.on('newLocationMessage', message => {
+  var timestamp = moment(message.createdAt).format('h:mm a');
+  var template = $('#location-message-template').html();
+  var html = Mustache.render(template, {
+    from: message.from,
+    url: message.url,
+    createdAt: timestamp,
+  });
+
+  $('#message-list').append(html);
+  scrollToBottom();
+});
+
+$('#message-form').on('submit', function(e) {
   e.preventDefault();
 
-  var messageTextbox = jQuery('[name=message]');
+  var messageTextbox = $('[name=message]');
   socket.emit('createMessage', {
     text: messageTextbox.val()
   }, function() {
@@ -66,7 +79,7 @@ jQuery('#message-form').on('submit', function(e) {
   });
 });
 
-var locationButton = jQuery('#send-location');
+var locationButton = $('#send-location');
 locationButton.on('click', function() {
   if (!navigator.geolocation) {
     return alert('Geolocation not supported by your browser');
@@ -86,15 +99,9 @@ locationButton.on('click', function() {
   });
 });
 
-socket.on('newLocationMessage', message => {
-  var timestamp = moment(message.createdAt).format('h:mm a');
-  var template = $('#location-message-template').html();
-  var html = Mustache.render(template, {
-    from: message.from,
-    url: message.url,
-    createdAt: timestamp,
-  });
-
-  $('#message-list').append(html);
-  scrollToBottom();
+var leaveButton = $('#leave-room');
+leaveButton.on('click', () => {
+  location.href = '/';
 });
+
+

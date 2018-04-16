@@ -149,6 +149,10 @@ button:disabled {
   flex-grow: 1;
 }
 
+.chat__footer button:not(:last-child) {
+  margin-right: 10px;
+}
+
 .chat__messages {
   list-style-type: none;
   padding: 10px;
