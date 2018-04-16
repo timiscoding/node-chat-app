@@ -19,7 +19,12 @@
       </div>
       <div class="form-field">
         <label for="room">Room name</label>
-        <input id="room" name="room" type="text"/>
+        <input id="room" name="room" list="rooms"/>
+        <datalist id="rooms">
+          {{#each rooms}}
+          <option value="{{this}}">{{this}}</option>
+          {{/each}}
+        </datalist>
       </div>
       <div class="form-field">
         <button>Join</button>

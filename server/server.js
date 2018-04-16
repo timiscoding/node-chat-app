@@ -13,6 +13,9 @@ const server = http.createServer(app);
 const io = socketIO(server);
 const users = new Users();
 
+app.set('view engine', 'html');
+app.engine('html', require('hbs').__express);
+
 const {generateMessage, generateLocationMessage} = require('./utils/message');
 
 io.on('connection', socket => {
@@ -74,6 +77,10 @@ io.on('connection', socket => {
 });
 
 app.use(express.static(publicPath));
+app.set('views', 'public');
+app.get('/', (req, res) => {
+  res.render('join', {rooms: users.getRoomList()});
+});
 
 server.listen(port, () => {
   console.log(`Server started on port ${port}`);

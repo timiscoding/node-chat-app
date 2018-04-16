@@ -71,4 +71,9 @@ describe('users', () => {
     var foundUser = users.getUser(user.name);
     expect(foundUser).toBeUndefined;
   });
+
+  it('should return room names', () => {
+    var rooms = users.getRoomList();
+    expect(rooms).toEqual(['Node course', 'React course']);
+  });
 });
