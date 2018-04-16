@@ -13,7 +13,7 @@ My own additions to the project
 
 ## Demo
 
-<a href="https://chat-app-timiscoding.herokuapp.com/" target="_blank">Try it out on Heroku</a>
+<a href="https://chat-app-timiscoding.herokuapp.com/" target="blank">Try it out on Heroku</a>
 
 ## Build
 
