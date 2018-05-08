@@ -1,6 +1,5 @@
-var expect = require('expect');
-
-var {generateMessage, generateLocationMessage} = require('./message');
+import expect from 'expect';
+import {generateMessage, generateLocationMessage} from './message';
 
 describe('generateMessage', () => {
   it('should generate the correct message object', () => {

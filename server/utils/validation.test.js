@@ -1,5 +1,5 @@
-var expect = require('expect');
-var {isRealString} = require('./validation');
+import expect from 'expect';
+import {isRealString} from './validation';
 
 describe('validation', () => {
   it('should reject for non-string values', () => {
