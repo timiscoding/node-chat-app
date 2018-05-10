@@ -67,7 +67,7 @@ io.on('connection', socket => {
   });
 });
 
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../../public')));
 app.set('views', 'public');
 app.get('/', (req, res) => {
   const rooms = users.getRoomList();
