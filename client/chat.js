@@ -1,9 +1,11 @@
+/* eslint-disable no-alert, no-console */
+
 import $ from 'jquery';
 import moment from 'moment';
 import Mustache from 'mustache';
 import './deparam';
 
-const socket = io();
+const socket = io(); // eslint-disable-line no-undef
 
 const scrollToBottom = () => {
   const messages = $('#message-list');
@@ -25,9 +27,7 @@ socket.on('connect', () => {
   socket.emit('join', params, (err) => {
     if (err) {
       alert(err);
-      window.location.href = "/";
-    } else {
-      console.log('No error');
+      window.location.href = '/';
     }
   });
 });
@@ -39,7 +39,7 @@ socket.on('disconnect', () => {
 socket.on('updateUserList', (users) => {
   const ol = $('<ol></ol>');
 
-  users.forEach(name => {
+  users.forEach((name) => {
     ol.append($('<li></li>').text(name));
   });
 
@@ -59,7 +59,7 @@ socket.on('newMessage', (message) => {
   scrollToBottom();
 });
 
-socket.on('newLocationMessage', message => {
+socket.on('newLocationMessage', (message) => {
   const timestamp = moment(message.createdAt).format('h:mm a');
   const template = $('#location-message-template').html();
   const html = Mustache.render(template, {
@@ -77,7 +77,7 @@ $('#message-form').on('submit', (e) => {
 
   const messageTextbox = $('[name=message]');
   socket.emit('createMessage', {
-    text: messageTextbox.val()
+    text: messageTextbox.val(),
   }, () => {
     messageTextbox.val('');
   });
@@ -91,7 +91,7 @@ locationButton.on('click', () => {
 
   locationButton.attr('disabled', 'disabled').text('Sending location...');
 
-  navigator.geolocation.getCurrentPosition((position) => {
+  return navigator.geolocation.getCurrentPosition((position) => {
     locationButton.removeAttr('disabled').text('Send location');
     socket.emit('createLocationMessage', {
       latitude: position.coords.latitude,
@@ -104,5 +104,5 @@ locationButton.on('click', () => {
 });
 
 $('#leave-room').on('click', () => {
-  location.href = '/';
+  location.href = '/'; // eslint-disable-line no-restricted-globals
 });

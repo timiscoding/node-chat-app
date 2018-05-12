@@ -10,16 +10,16 @@ export default class Users {
   }
 
   removeUser(id) {
-    const user = Object.assign({}, this.getUser({id}));
+    const userToRemove = Object.assign({}, this.getUser({ id }));
 
-    if (user) {
-      this.users = this.users.filter(user => user.id !== id);
+    if (userToRemove) {
+      this.users = this.users.filter(user => user.id !== userToRemove.id);
     }
 
-    return user;
+    return userToRemove;
   }
 
-  getUser({id, name}) {
+  getUser({ id, name }) {
     return this.users.find(user => user.id === id || user.name === name);
   }
 

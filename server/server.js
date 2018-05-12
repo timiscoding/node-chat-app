@@ -1,11 +1,13 @@
+/* eslint-disable no-console */
+
 import express from 'express';
 import path from 'path';
 import http from 'http';
 import socketIO from 'socket.io';
 
-import {isRealString} from './utils/validation';
+import isRealString from './utils/validation';
 import Users from './utils/users';
-import {generateMessage, generateLocationMessage} from './utils/message';
+import { generateMessage, generateLocationMessage } from './utils/message';
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -14,10 +16,10 @@ const io = socketIO(server);
 const users = new Users();
 
 app.set('view engine', 'html');
-app.engine('html', require('hbs').__express);
+app.engine('html', require('hbs').__express); // eslint-disable-line no-underscore-dangle
 
 
-io.on('connection', socket => {
+io.on('connection', (socket) => {
   console.log('New user connected');
 
   socket.on('join', (params, callback) => {
@@ -39,11 +41,11 @@ io.on('connection', socket => {
     io.to(room).emit('updateUserList', users.getUserList(room));
     socket.emit('newMessage', generateMessage('Admin', `Welcome to the room ${room}!`));
     socket.broadcast.to(room).emit('newMessage', generateMessage('Admin', `${name} joined the chat`));
-    callback();
+    return callback();
   });
 
   socket.on('createMessage', (message, callback) => {
-    const user = users.getUser({id: socket.id});
+    const user = users.getUser({ id: socket.id });
 
     if (user && isRealString(message.text)) {
       io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
@@ -51,8 +53,8 @@ io.on('connection', socket => {
     callback();
   });
 
-  socket.on('createLocationMessage', coords => {
-    const user = users.getUser({id: socket.id});
+  socket.on('createLocationMessage', (coords) => {
+    const user = users.getUser({ id: socket.id });
 
     if (user) {
       io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
@@ -71,7 +73,7 @@ app.use(express.static(path.join(__dirname, '../../public')));
 app.set('views', 'public');
 app.get('/', (req, res) => {
   const rooms = users.getRoomList();
-  res.render('join', {rooms, roomCount: rooms.length});
+  res.render('join', { rooms, roomCount: rooms.length });
 });
 
 server.listen(port, () => {

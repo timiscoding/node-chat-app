@@ -1,5 +1,5 @@
 import expect from 'expect';
-import {isRealString} from './validation';
+import isRealString from './validation';
 
 describe('validation', () => {
   it('should reject for non-string values', () => {
