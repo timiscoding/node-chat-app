@@ -5,6 +5,7 @@ A realtime chat app that lets users join rooms with the ability to send their lo
 ## Enhancements
 My own additions to the project
 
+* Bundling server and client with webpack, refactoring to ES6 and eslinting
 * Join page shows a list of active rooms in a dropdown
 * Prevent clients joining a room with the same user name
 * Clients can leave room

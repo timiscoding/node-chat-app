@@ -1,6 +1,6 @@
-import common from './webpack.common.babel';
 import merge from 'webpack-merge';
 import StartServerPlugin from 'start-server-webpack-plugin';
+import common from './webpack.common.babel';
 
 export default merge.multiple(common, {
   client: {
@@ -11,7 +11,7 @@ export default merge.multiple(common, {
     devtool: 'inline-source-map',
     mode: 'development',
     plugins: [
-      new StartServerPlugin('server.js')
+      new StartServerPlugin('server.js'),
     ],
-  }
+  },
 });
