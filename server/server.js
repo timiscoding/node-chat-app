@@ -5,13 +5,10 @@ import path from 'path';
 import http from 'http';
 import socketIO from 'socket.io';
 import mongoose from 'mongoose';
-
+import Users from './utils/users';
 import globalMiddleware from './middleware';
 import connect from './db';
-import isRealString from './utils/validation';
-import Users from './utils/users';
-import { generateMessage, generateLocationMessage } from './utils/message';
-
+import genSocketEvents from './socketEvent';
 import './models/User';
 
 const port = process.env.PORT || 3000;
@@ -19,8 +16,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 connect().catch(err => console.error('Could not connect to DB', err.message));
-const users = new Users();
 const User = mongoose.model('User');
+const users = Users.getInstance();
+
 
 app.set('view engine', 'html');
 app.engine('html', require('hbs').__express); // eslint-disable-line no-underscore-dangle
@@ -29,57 +27,11 @@ app.use(globalMiddleware);
 
 io.on('connection', (socket) => {
   console.log('New user connected');
-
-  socket.on('join', (params, callback) => {
-    if (!isRealString(params.name) || !isRealString(params.room)) {
-      return callback('Name and Room name are required!');
-    }
-
-    const name = params.name.trim();
-    const room = params.room.trim().toLowerCase();
-    const user = users.getUser({ name });
-
-    if (user && user.room === room) {
-      return callback('Username taken!');
-    }
-
-    socket.join(room);
-    users.removeUser(socket.id);
-    users.addUser(socket.id, name, room);
-    io.to(room).emit('updateUserList', users.getUserList(room));
-    socket.emit('newMessage', generateMessage('Admin', `Welcome to the room ${room}!`));
-    socket.broadcast.to(room).emit('newMessage', generateMessage('Admin', `${name} joined the chat`));
-    return callback();
-  });
-
-  socket.on('createMessage', (message, callback) => {
-    const user = users.getUser({ id: socket.id });
-
-    if (user && isRealString(message.text)) {
-      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
-    }
-    callback();
-  });
-
-  socket.on('createLocationMessage', (coords) => {
-    const user = users.getUser({ id: socket.id });
-
-    if (user) {
-      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
-    }
-  });
-
-  socket.on('disconnect', () => {
-    const user = users.removeUser(socket.id);
-
-    io.to(user.room).emit('updateUserList', users.getUserList(user.room));
-    io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left`));
-  });
+  genSocketEvents(socket, io);
 });
 
 app.use(express.static(path.join(__dirname, '../../public')));
 app.set('views', 'public');
-
 
 app.post('/user', async (req, res) => {
   const newUser = new User(req.body);

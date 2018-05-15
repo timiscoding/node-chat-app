@@ -1,4 +1,4 @@
-export default class Users {
+class Users {
   constructor() {
     this.users = [];
   }
@@ -35,3 +35,20 @@ export default class Users {
     return [...rooms];
   }
 }
+
+const Singleton = (() => {
+  let instance;
+
+  const createInstance = () => new Users();
+
+  return {
+    getInstance() {
+      if (!instance) {
+        instance = createInstance();
+      }
+      return instance;
+    },
+  };
+})();
+
+export { Singleton as default, Users };
