@@ -9,24 +9,24 @@ export default {
     },
     output: {
       path: path.join(__dirname, 'public/js'),
-      filename: '[name].js',
+      filename: '[name].bundle.js',
     },
     module: {
       rules: [
-        { test: /\.js$/, exclude: /node_modules/, use: 'babel-loader' }
-      ]
+        { test: /\.js$/, exclude: /node_modules/, use: 'babel-loader' },
+      ],
     },
   },
   server: {
     entry: './server/server.js',
     output: {
       path: path.join(__dirname, 'server/dist'),
-      filename: 'server.js',
+      filename: 'server.bundle.js',
     },
     target: 'node',
     node: {
       __dirname: false,
     },
-    externals: [nodeExternals()]
+    externals: [nodeExternals()],
   },
 };

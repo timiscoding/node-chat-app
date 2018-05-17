@@ -5,5 +5,5 @@ import bodyParser from 'body-parser';
 export default [
   express.static(path.join(__dirname, '../../public')),
   bodyParser.json(),
-  bodyParser.urlencoded(),
+  bodyParser.urlencoded({ extended: true }),
 ];

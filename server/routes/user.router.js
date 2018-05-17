@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import * as userController from './user.controller';
+import userController from '../controllers/user.controller';
 
 export const userRouter = express.Router();
 const User = mongoose.model('User');
