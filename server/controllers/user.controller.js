@@ -10,8 +10,9 @@ const createOne = async (req, res) => {
   res.send(`create user ${newUser}`);
 };
 
-const getOne = (req, res) => {
-  res.send(`get user\n ${req.docFromId}`);
+const getOne = async (req, res) => {
+  const user = await User.findById(req.user.id);
+  res.send(`get user\n ${user}`);
 };
 
 const updateOne = (req, res) => {
@@ -22,14 +23,9 @@ const deleteOne = (req, res) => {
   res.send(`delete user\n ${req.docFromId}`);
 };
 
-const getAll = (req, res) => {
-  res.send('get all users');
-};
-
 export default {
   createOne: catchAsyncError(createOne),
   getOne: catchAsyncError(getOne),
   updateOne: catchAsyncError(updateOne),
   deleteOne: catchAsyncError(deleteOne),
-  getAll: catchAsyncError(getAll),
 };

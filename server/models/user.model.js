@@ -26,7 +26,7 @@ userSchema.methods = {
     }
     return bcrypt.hash(plaintextPassword, 12);
   },
-  checkPassword(password) {
+  isValidPassword(password) {
     return bcrypt.compare(password, this.password);
   },
 };

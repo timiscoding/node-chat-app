@@ -1,4 +1,5 @@
 import express from 'express';
+import { ensureLoggedIn } from 'connect-ensure-login';
 import mongoose from 'mongoose';
 import userController from '../controllers/user.controller';
 
@@ -23,10 +24,9 @@ userRouter.param('id', async (req, res, next, id) => {
 });
 
 userRouter.route('/')
-  .get(userController.getAll)
   .post(userController.createOne);
 
 userRouter.route('/:id')
-  .get(userController.getOne)
+  .get(ensureLoggedIn(), userController.getOne)
   .put(userController.updateOne)
   .delete(userController.deleteOne);
