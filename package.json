@@ -11,7 +11,7 @@
     "test-watch": "npm test -- -w"
   },
   "engines": {
-    "node": "6.2.2"
+    "node": "9.2.0"
   },
   "keywords": [],
   "author": "Timothy Tsui <timiscoding@gmail.com> (https://github.com/timiscoding)",
