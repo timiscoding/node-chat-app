@@ -17,17 +17,13 @@ const server = http.createServer(app);
 const io = socketIO(server);
 connect().catch(err => console.error('Could not connect to DB', err.message));
 
-app.set('view engine', 'html');
-app.engine('html', require('hbs').__express); // eslint-disable-line no-underscore-dangle
-
+app.set('view engine', 'hbs');
 app.use(globalMiddleware);
 
 io.on('connection', (socket) => {
   console.log('New user connected');
   genSocketEvents(socket, io);
 });
-
-app.set('views', 'public');
 
 app.use('/', routes);
 

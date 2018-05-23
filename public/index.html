@@ -9,7 +9,7 @@
 </head>
 <body class="centered-form">
   <div class="centered-form__form">
-    <form action="/chat.html">
+    <form>
       <div class="form-field">
         <h3>Join a chat</h3>
       </div>
@@ -18,21 +18,17 @@
         <input id="name" name="name" type="text" autofocus/>
       </div>
       <div class="form-field">
-        <label>Room name</label>
+        <label>Room name (<span id="active-rooms">0</span> active)</label>
         <input id="room-text" name="room" type="text"/>
 
-        <select name="room" id="room-select">
-          <option selected value> -- active rooms ({{roomCount}}) -- </option>
-          {{#each rooms}}
-          <option value="{{this}}">{{this}}</option>
-          {{/each}}
-        </select>
+        <select name="room" size="3" id="room-select"></select>
       </div>
       <div class="form-field">
         <button>Join</button>
       </div>
     </form>
   </div>
+  <script src="/socket.io/socket.io.js"></script>
   <script src="/js/join.bundle.js"></script>
 </body>
 </html>

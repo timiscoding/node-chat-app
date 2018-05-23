@@ -4,6 +4,11 @@ import Users from './utils/users';
 
 const users = Users.getInstance();
 
+// update room list for people joining a room
+const updateUserJoining = (io) => {
+  io.emit('updateRoomList', { rooms: users.getRoomList() });
+};
+
 const joinRoom = (socket, io) => socket.on('join', (params, callback) => {
   if (!isRealString(params.name) || !isRealString(params.room)) {
     return callback('Name and Room name are required!');
@@ -23,6 +28,8 @@ const joinRoom = (socket, io) => socket.on('join', (params, callback) => {
   io.to(room).emit('updateUserList', users.getUserList(room));
   socket.emit('newMessage', generateMessage('Admin', `Welcome to the room ${room}!`));
   socket.broadcast.to(room).emit('newMessage', generateMessage('Admin', `${name} joined the chat`));
+
+  updateUserJoining(io);
   return callback();
 });
 
@@ -48,6 +55,11 @@ const disconnect = (socket, io) => socket.on('disconnect', () => {
 
   io.to(user.room).emit('updateUserList', users.getUserList(user.room));
   io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left`));
+  updateUserJoining(io);
+});
+
+const getRoomList = socket => socket.on('getRoomList', (_, callback) => {
+  callback({ rooms: users.getRoomList() });
 });
 
 export default (socket, io) => ({
@@ -55,4 +67,5 @@ export default (socket, io) => ({
   createMessage: createMessage(socket, io),
   createLocationMessage: createLocationMessage(socket, io),
   disconnect: disconnect(socket, io),
+  getRoomList: getRoomList(socket, io),
 });

@@ -89,6 +89,18 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 // eslint-disable-line import/no-extraneous-dependencies
 
+var socket = io(); // eslint-disable-line no-undef
+
+var updateRoomInfo = function updateRoomInfo(_ref) {
+  var rooms = _ref.rooms;
+
+  (0, _jquery2.default)('#active-rooms').text(rooms.length);
+  var options = rooms.map(function (room) {
+    return (0, _jquery2.default)('<option>' + room + '</option>', { value: room });
+  });
+  (0, _jquery2.default)('#room-select').empty().append(options);
+};
+
 (0, _jquery2.default)(document).ready(function () {
   (0, _jquery2.default)('form').submit(function (e) {
     e.preventDefault();
@@ -107,6 +119,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   (0, _jquery2.default)('#room-select').change(function () {
     (0, _jquery2.default)('#room-text').val('');
   });
+
+  socket.on('connect', function () {
+    socket.emit('getRoomList', null, updateRoomInfo);
+  });
+
+  socket.on('updateRoomList', updateRoomInfo);
 });
 
 /***/ }),

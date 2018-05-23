@@ -1,5 +1,13 @@
 import $ from 'jquery'; // eslint-disable-line import/no-extraneous-dependencies
 
+const socket = io(); // eslint-disable-line no-undef
+
+const updateRoomInfo = ({ rooms }) => {
+  $('#active-rooms').text(rooms.length);
+  const options = rooms.map(room => $(`<option>${room}</option>`, { value: room }));
+  $('#room-select').empty().append(options);
+};
+
 $(document).ready(() => {
   $('form').submit((e) => {
     e.preventDefault();
@@ -18,4 +26,10 @@ $(document).ready(() => {
   $('#room-select').change(() => {
     $('#room-text').val('');
   });
+
+  socket.on('connect', () => {
+    socket.emit('getRoomList', null, updateRoomInfo);
+  });
+
+  socket.on('updateRoomList', updateRoomInfo);
 });
