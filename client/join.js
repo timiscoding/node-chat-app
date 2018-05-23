@@ -4,8 +4,9 @@ const socket = io(); // eslint-disable-line no-undef
 
 const updateRoomInfo = ({ rooms }) => {
   $('#active-rooms').text(rooms.length);
+  const defaultOption = $('<option value="" selected="selected">-- Active rooms --</option>');
   const options = rooms.map(room => $(`<option>${room}</option>`, { value: room }));
-  $('#room-select').empty().append(options);
+  $('#room-select').empty().append(defaultOption, options);
 };
 
 $(document).ready(() => {
