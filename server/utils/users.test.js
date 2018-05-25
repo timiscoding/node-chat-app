@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { Users } from './users';
+import { UsersClass as Users } from './users';
 
 describe('users', () => {
   let users;

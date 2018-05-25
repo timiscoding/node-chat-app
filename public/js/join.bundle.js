@@ -95,7 +95,7 @@ var updateRoomInfo = function updateRoomInfo(_ref) {
   var rooms = _ref.rooms;
 
   (0, _jquery2.default)('#active-rooms').text(rooms.length);
-  var defaultOption = (0, _jquery2.default)('<option value="" selected="selected">-- Active rooms --</option>');
+  var defaultOption = (0, _jquery2.default)('<option disabled selected>-- Active rooms --</option>');
   var options = rooms.map(function (room) {
     return (0, _jquery2.default)('<option>' + room + '</option>', { value: room });
   });
@@ -103,14 +103,12 @@ var updateRoomInfo = function updateRoomInfo(_ref) {
 };
 
 (0, _jquery2.default)(document).ready(function () {
-  (0, _jquery2.default)('form').submit(function (e) {
-    e.preventDefault();
+  (0, _jquery2.default)('form').submit(function () {
     var data = {
       name: (0, _jquery2.default)('#name').val(),
       room: (0, _jquery2.default)('#room-text').val() || (0, _jquery2.default)('#room-select').val()
     };
-
-    window.location.href = 'chat.html?' + _jquery2.default.param(data);
+    sessionStorage.setItem('joinParams', JSON.stringify(data));
   });
 
   (0, _jquery2.default)('#room-text').change(function () {

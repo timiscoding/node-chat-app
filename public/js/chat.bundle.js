@@ -93,13 +93,11 @@ var _mustache = __webpack_require__(/*! mustache */ "./node_modules/mustache/mus
 
 var _mustache2 = _interopRequireDefault(_mustache);
 
-__webpack_require__(/*! ./deparam */ "./client/deparam.js");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/* eslint-disable no-alert, no-console */
-
 var socket = io(); // eslint-disable-line no-undef
+
+/* eslint-disable no-alert, no-console */
 
 var scrollToBottom = function scrollToBottom() {
   var messages = (0, _jquery2.default)('#message-list');
@@ -116,8 +114,7 @@ var scrollToBottom = function scrollToBottom() {
 };
 
 socket.on('connect', function () {
-  var params = _jquery2.default.deparam();
-
+  var params = JSON.parse(sessionStorage.getItem('joinParams'));
   socket.emit('join', params, function (err) {
     if (err) {
       alert(err);
@@ -200,43 +197,6 @@ locationButton.on('click', function () {
 (0, _jquery2.default)('#leave-room').on('click', function () {
   location.href = '/'; // eslint-disable-line no-restricted-globals
 });
-
-/***/ }),
-
-/***/ "./client/deparam.js":
-/*!***************************!*\
-  !*** ./client/deparam.js ***!
-  \***************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _jquery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-(function ($) {
-  $.deparam = $.deparam || function () {
-    var uri = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.location.search;
-
-    var queryString = {};
-    uri.replace(new RegExp('([^?=&]+)(=([^&#]*))?', 'g'), function ($0, $1, $2, $3) {
-      queryString[$1] = decodeURIComponent($3.replace(/\+/g, '%20'));
-    });
-    return queryString;
-  };
-})(_jquery2.default); /**
-                       * jQuery.deparam - The oposite of jQuery param. Creates an object of query string parameters.
-                       *
-                       * Credits for the idea and Regex:
-                       * http://stevenbenner.com/2010/03/javascript-regex-trick-parse-a-query-string-into-an-object/
-                      */
-
-/* eslint-disable no-param-reassign */
 
 /***/ }),
 

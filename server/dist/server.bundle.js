@@ -333,6 +333,14 @@ routes.post('/login', passport__WEBPACK_IMPORTED_MODULE_1___default.a.authentica
 }));
 routes.use('/user', _user_router__WEBPACK_IMPORTED_MODULE_2__["userRouter"]);
 
+routes.get('/', (req, res) => {
+  res.render('index', { title: 'Join' });
+});
+
+routes.post('/chat', (req, res) => {
+  res.render('chat', { title: 'Chat' });
+});
+
 routes.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   res.status(500).send(`Something messed up... ${err.message}`);
 });
@@ -410,13 +418,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var http__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(http__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var socket_io__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! socket.io */ "socket.io");
 /* harmony import */ var socket_io__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(socket_io__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _db__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./db */ "./server/db.js");
-/* harmony import */ var _models__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./models */ "./server/models/index.js");
-/* harmony import */ var _passport__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./passport */ "./server/passport.js");
-/* harmony import */ var _socketEvent__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./socketEvent */ "./server/socketEvent.js");
-/* harmony import */ var _middleware__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./middleware */ "./server/middleware.js");
-/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./routes */ "./server/routes/index.js");
+/* harmony import */ var hbs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! hbs */ "hbs");
+/* harmony import */ var hbs__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(hbs__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _db__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./db */ "./server/db.js");
+/* harmony import */ var _models__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./models */ "./server/models/index.js");
+/* harmony import */ var _passport__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./passport */ "./server/passport.js");
+/* harmony import */ var _socketEvent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./socketEvent */ "./server/socketEvent.js");
+/* harmony import */ var _middleware__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./middleware */ "./server/middleware.js");
+/* harmony import */ var _routes__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./routes */ "./server/routes/index.js");
 /* eslint-disable no-console */
+
+
 
 
 
@@ -433,17 +447,19 @@ const port = process.env.PORT || 3000;
 const app = express__WEBPACK_IMPORTED_MODULE_0___default()();
 const server = http__WEBPACK_IMPORTED_MODULE_1___default.a.createServer(app);
 const io = socket_io__WEBPACK_IMPORTED_MODULE_2___default()(server);
-Object(_db__WEBPACK_IMPORTED_MODULE_3__["default"])().catch(err => console.error('Could not connect to DB', err.message));
+Object(_db__WEBPACK_IMPORTED_MODULE_5__["default"])().catch(err => console.error('Could not connect to DB', err.message));
 
+hbs__WEBPACK_IMPORTED_MODULE_3___default.a.registerPartials(path__WEBPACK_IMPORTED_MODULE_4___default.a.join(__dirname, '../../views/partials'));
 app.set('view engine', 'hbs');
-app.use(_middleware__WEBPACK_IMPORTED_MODULE_7__["default"]);
+
+app.use(_middleware__WEBPACK_IMPORTED_MODULE_9__["default"]);
 
 io.on('connection', (socket) => {
   console.log('New user connected');
-  Object(_socketEvent__WEBPACK_IMPORTED_MODULE_6__["default"])(socket, io);
+  Object(_socketEvent__WEBPACK_IMPORTED_MODULE_8__["default"])(socket, io);
 });
 
-app.use('/', _routes__WEBPACK_IMPORTED_MODULE_8__["default"]);
+app.use('/', _routes__WEBPACK_IMPORTED_MODULE_10__["default"]);
 
 server.listen(port, () => {
   console.log(`Server started on port ${port}`);
@@ -588,14 +604,13 @@ const generateLocationMessage = (from, latitude, longitude) => ({
 /*!*******************************!*\
   !*** ./server/utils/users.js ***!
   \*******************************/
-/*! exports provided: default, Users */
+/*! exports provided: default, UsersClass */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Singleton; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Users", function() { return Users; });
-class Users {
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UsersClass", function() { return UsersClass; });
+class UsersClass {
   constructor() {
     this.users = [];
   }
@@ -633,10 +648,10 @@ class Users {
   }
 }
 
-const Singleton = (() => {
+const Users = (() => {
   let instance;
 
-  const createInstance = () => new Users();
+  const createInstance = () => new UsersClass();
 
   return {
     getInstance() {
@@ -648,6 +663,7 @@ const Singleton = (() => {
   };
 })();
 
+/* harmony default export */ __webpack_exports__["default"] = (Users);
 
 
 
@@ -721,6 +737,17 @@ module.exports = require("express");
 /***/ (function(module, exports) {
 
 module.exports = require("express-session");
+
+/***/ }),
+
+/***/ "hbs":
+/*!**********************!*\
+  !*** external "hbs" ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("hbs");
 
 /***/ }),
 

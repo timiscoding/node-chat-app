@@ -3,6 +3,8 @@
 import express from 'express';
 import http from 'http';
 import socketIO from 'socket.io';
+import hbs from 'hbs';
+import path from 'path';
 
 import connect from './db';
 import './models';
@@ -17,7 +19,9 @@ const server = http.createServer(app);
 const io = socketIO(server);
 connect().catch(err => console.error('Could not connect to DB', err.message));
 
+hbs.registerPartials(path.join(__dirname, '../../views/partials'));
 app.set('view engine', 'hbs');
+
 app.use(globalMiddleware);
 
 io.on('connection', (socket) => {

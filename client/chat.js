@@ -3,7 +3,6 @@
 import $ from 'jquery';
 import moment from 'moment';
 import Mustache from 'mustache';
-import './deparam';
 
 const socket = io(); // eslint-disable-line no-undef
 
@@ -22,8 +21,7 @@ const scrollToBottom = () => {
 };
 
 socket.on('connect', () => {
-  const params = $.deparam();
-
+  const params = JSON.parse(sessionStorage.getItem('joinParams'));
   socket.emit('join', params, (err) => {
     if (err) {
       alert(err);

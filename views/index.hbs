@@ -1,0 +1,22 @@
+<div class="centered-form">
+  <form class="centered-form__form" action="/chat" method="post">
+    <div class="form-field">
+      <h3>Join a chat</h3>
+    </div>
+    <div class="form-field">
+      <label for="name">Display name</label>
+      <input id="name" name="name" type="text" autofocus/>
+    </div>
+    <div class="form-field">
+      <label>Room name (<span id="active-rooms">0</span> active)</label>
+      <input id="room-text" name="room" type="text" placeholder="Create or join a room"/>
+
+      <select name="room" size="3" id="room-select"></select>
+    </div>
+    <div class="form-field">
+      <button type="submit">Join</button>
+    </div>
+  </form>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/join.bundle.js"></script>
