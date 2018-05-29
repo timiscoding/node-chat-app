@@ -1,12 +1,13 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import isEmail from 'validator/lib/isEmail';
+import beautifyUnique from 'mongoose-beautiful-unique-validation';
 
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: 'You must supply a email',
-    unique: 'Email already exists',
+    unique: 'An account with email {VALUE} already exists',
     trim: true,
     lowercase: true,
     validate: [isEmail, 'Email is not valid'],
@@ -16,6 +17,12 @@ const userSchema = new mongoose.Schema({
     required: 'You must supply a password',
     trim: true,
     minlength: 5,
+  },
+  username: {
+    type: String,
+    required: 'Username is required',
+    unique: 'Username already taken',
+    trim: true,
   },
 });
 
@@ -35,5 +42,10 @@ userSchema.pre('save', async function preSaveUser(next) {
   this.password = await this.hashPassword(this.password);
   next();
 });
+
+// if client tries creating a duplicate on a unique field, it will produce a low level
+// mongo db error. This plugin transforms that error into a mongoose validation error
+// that exists in an 'errors' object
+userSchema.plugin(beautifyUnique);
 
 export default mongoose.model('User', userSchema);

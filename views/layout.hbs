@@ -12,6 +12,10 @@
 <body>
   {{> header }}
 
+  {{#if flashes}}
+    <pre>{{toJSON flashes}}</pre>
+  {{/if}}
+
   {{{body}}}
 </body>
 

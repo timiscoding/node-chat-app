@@ -23,10 +23,11 @@ userRouter.param('id', async (req, res, next, id) => {
   }
 });
 
-userRouter.route('/')
+userRouter.route('/signup')
+  .get(userController.signupForm)
   .post(userController.createOne);
 
-userRouter.route('/:id')
+userRouter.route('/user/:id')
   .get(ensureLoggedIn(), userController.getOne)
   .put(userController.updateOne)
   .delete(userController.deleteOne);

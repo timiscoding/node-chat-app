@@ -1,5 +1,10 @@
 <header>
   <nav>
-    <a href="/login">Login</a>
+    {{#if user}}
+      Hi {{user.username}}
+    {{else}}
+      <a href="/login">Login</a>
+      <a href="/signup">Sign up</a>
+    {{/if}}
   </nav>
 </header>

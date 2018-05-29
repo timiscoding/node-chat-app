@@ -72,6 +72,33 @@ require('source-map-support').install();
 /************************************************************************/
 /******/ ({
 
+/***/ "./server/controllers/auth.controller.js":
+/*!***********************************************!*\
+  !*** ./server/controllers/auth.controller.js ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var passport__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! passport */ "passport");
+/* harmony import */ var passport__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(passport__WEBPACK_IMPORTED_MODULE_0__);
+
+
+const loginForm = (req, res) => {
+  res.render('login');
+};
+
+const loginUser = passport__WEBPACK_IMPORTED_MODULE_0___default.a.authenticate('local', {
+  successReturnToOrRedirect: '/',
+  failureRedirect: '/login',
+});
+
+/* harmony default export */ __webpack_exports__["default"] = ({ loginForm, loginUser });
+
+
+/***/ }),
+
 /***/ "./server/controllers/user.controller.js":
 /*!***********************************************!*\
   !*** ./server/controllers/user.controller.js ***!
@@ -89,11 +116,15 @@ __webpack_require__.r(__webpack_exports__);
 
 const User = mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model('User');
 
+const signupForm = (req, res) => {
+  res.render('signup');
+};
+
 const createOne = async (req, res) => {
-  const { email, password } = req.body;
-  const user = new User({ email, password });
-  const newUser = await user.save();
-  res.send(`create user ${newUser}`);
+  const { email, password, username } = req.body;
+  const user = new User({ email, password, username });
+  await user.save();
+  res.redirect('/');
 };
 
 const getOne = async (req, res) => {
@@ -114,6 +145,7 @@ const deleteOne = (req, res) => {
   getOne: Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_1__["catchAsyncError"])(getOne),
   updateOne: Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_1__["catchAsyncError"])(updateOne),
   deleteOne: Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_1__["catchAsyncError"])(deleteOne),
+  signupForm,
 });
 
 
@@ -159,6 +191,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var passport__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(passport__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var express_session__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! express-session */ "express-session");
 /* harmony import */ var express_session__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(express_session__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var connect_flash__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! connect-flash */ "connect-flash");
+/* harmony import */ var connect_flash__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(connect_flash__WEBPACK_IMPORTED_MODULE_5__);
+
 
 
 
@@ -172,6 +207,7 @@ __webpack_require__.r(__webpack_exports__);
   express_session__WEBPACK_IMPORTED_MODULE_4___default()({ secret: 'keyboard cat' }),
   passport__WEBPACK_IMPORTED_MODULE_3___default.a.initialize(),
   passport__WEBPACK_IMPORTED_MODULE_3___default.a.session(),
+  connect_flash__WEBPACK_IMPORTED_MODULE_5___default()(),
 ]);
 
 
@@ -209,6 +245,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var bcrypt__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(bcrypt__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var validator_lib_isEmail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! validator/lib/isEmail */ "validator/lib/isEmail");
 /* harmony import */ var validator_lib_isEmail__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(validator_lib_isEmail__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var mongoose_beautiful_unique_validation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! mongoose-beautiful-unique-validation */ "mongoose-beautiful-unique-validation");
+/* harmony import */ var mongoose_beautiful_unique_validation__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(mongoose_beautiful_unique_validation__WEBPACK_IMPORTED_MODULE_3__);
+
 
 
 
@@ -217,7 +256,7 @@ const userSchema = new mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.Schema({
   email: {
     type: String,
     required: 'You must supply a email',
-    unique: 'Email already exists',
+    unique: 'An account with email {VALUE} already exists',
     trim: true,
     lowercase: true,
     validate: [validator_lib_isEmail__WEBPACK_IMPORTED_MODULE_2___default.a, 'Email is not valid'],
@@ -227,6 +266,12 @@ const userSchema = new mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.Schema({
     required: 'You must supply a password',
     trim: true,
     minlength: 5,
+  },
+  username: {
+    type: String,
+    required: 'Username is required',
+    unique: 'Username already taken',
+    trim: true,
   },
 });
 
@@ -246,6 +291,11 @@ userSchema.pre('save', async function preSaveUser(next) {
   this.password = await this.hashPassword(this.password);
   next();
 });
+
+// if client tries creating a duplicate on a unique field, it will produce a low level
+// mongo db error. This plugin transforms that error into a mongoose validation error
+// that exists in an 'errors' object
+userSchema.plugin(mongoose_beautiful_unique_validation__WEBPACK_IMPORTED_MODULE_3___default.a);
 
 /* harmony default export */ __webpack_exports__["default"] = (mongoose__WEBPACK_IMPORTED_MODULE_0___default.a.model('User', userSchema));
 
@@ -304,6 +354,31 @@ passport__WEBPACK_IMPORTED_MODULE_0___default.a.deserializeUser(async (id, done)
 
 /***/ }),
 
+/***/ "./server/routes/auth.router.js":
+/*!**************************************!*\
+  !*** ./server/routes/auth.router.js ***!
+  \**************************************/
+/*! exports provided: authRouter */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "authRouter", function() { return authRouter; });
+/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! express */ "express");
+/* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _controllers_auth_controller__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../controllers/auth.controller */ "./server/controllers/auth.controller.js");
+
+
+
+
+const authRouter = express__WEBPACK_IMPORTED_MODULE_0___default.a.Router();
+
+authRouter.get('/login', _controllers_auth_controller__WEBPACK_IMPORTED_MODULE_1__["default"].loginForm);
+authRouter.post('/login', _controllers_auth_controller__WEBPACK_IMPORTED_MODULE_1__["default"].loginUser);
+
+
+/***/ }),
+
 /***/ "./server/routes/index.js":
 /*!********************************!*\
   !*** ./server/routes/index.js ***!
@@ -315,23 +390,16 @@ passport__WEBPACK_IMPORTED_MODULE_0___default.a.deserializeUser(async (id, done)
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! express */ "express");
 /* harmony import */ var express__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(express__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var passport__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! passport */ "passport");
-/* harmony import */ var passport__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(passport__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _user_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./user.router */ "./server/routes/user.router.js");
+/* harmony import */ var _user_router__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./user.router */ "./server/routes/user.router.js");
+/* harmony import */ var _auth_router__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./auth.router */ "./server/routes/auth.router.js");
 
 
 
 
 const routes = express__WEBPACK_IMPORTED_MODULE_0___default.a.Router();
 
-routes.get('/login', (req, res) => {
-  res.send('<p>login form</p>');
-});
-routes.post('/login', passport__WEBPACK_IMPORTED_MODULE_1___default.a.authenticate('local', {
-  successReturnToOrRedirect: '/',
-  failureRedirect: '/login',
-}));
-routes.use('/user', _user_router__WEBPACK_IMPORTED_MODULE_2__["userRouter"]);
+routes.use('/', _auth_router__WEBPACK_IMPORTED_MODULE_2__["authRouter"]);
+routes.use('/', _user_router__WEBPACK_IMPORTED_MODULE_1__["userRouter"]);
 
 routes.get('/', (req, res) => {
   res.render('index', { title: 'Join' });
@@ -341,8 +409,22 @@ routes.post('/chat', (req, res) => {
   res.render('chat', { title: 'Chat' });
 });
 
+// handle mongoose validation errors
+routes.use((err, req, res, next) => {
+  if (!err.errors) {
+    return next(err);
+  }
+
+  const validationErrors = Object.keys(err.errors);
+
+  if (validationErrors.length > 0) {
+    validationErrors.forEach(e => req.flash('error', err.errors[e].message));
+  }
+  return res.redirect('back');
+});
+
 routes.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  res.status(500).send(`Something messed up... ${err.message}`);
+  res.status(500).send(`something messed up: ${err.message}`);
 });
 
 /* harmony default export */ __webpack_exports__["default"] = (routes);
@@ -392,10 +474,11 @@ userRouter.param('id', async (req, res, next, id) => {
   }
 });
 
-userRouter.route('/')
+userRouter.route('/signup')
+  .get(_controllers_user_controller__WEBPACK_IMPORTED_MODULE_3__["default"].signupForm)
   .post(_controllers_user_controller__WEBPACK_IMPORTED_MODULE_3__["default"].createOne);
 
-userRouter.route('/:id')
+userRouter.route('/user/:id')
   .get(Object(connect_ensure_login__WEBPACK_IMPORTED_MODULE_1__["ensureLoggedIn"])(), _controllers_user_controller__WEBPACK_IMPORTED_MODULE_3__["default"].getOne)
   .put(_controllers_user_controller__WEBPACK_IMPORTED_MODULE_3__["default"].updateOne)
   .delete(_controllers_user_controller__WEBPACK_IMPORTED_MODULE_3__["default"].deleteOne);
@@ -449,7 +532,9 @@ const server = http__WEBPACK_IMPORTED_MODULE_1___default.a.createServer(app);
 const io = socket_io__WEBPACK_IMPORTED_MODULE_2___default()(server);
 Object(_db__WEBPACK_IMPORTED_MODULE_5__["default"])().catch(err => console.error('Could not connect to DB', err.message));
 
+hbs__WEBPACK_IMPORTED_MODULE_3___default.a.localsAsTemplateData(app);
 hbs__WEBPACK_IMPORTED_MODULE_3___default.a.registerPartials(path__WEBPACK_IMPORTED_MODULE_4___default.a.join(__dirname, '../../views/partials'));
+hbs__WEBPACK_IMPORTED_MODULE_3___default.a.registerHelper('toJSON', obj => JSON.stringify(obj, null, 2));
 app.set('view engine', 'hbs');
 
 app.use(_middleware__WEBPACK_IMPORTED_MODULE_9__["default"]);
@@ -459,6 +544,12 @@ io.on('connection', (socket) => {
   Object(_socketEvent__WEBPACK_IMPORTED_MODULE_8__["default"])(socket, io);
 });
 
+// pass variables to all templates
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  res.locals.flashes = req.flash();
+  next();
+});
 app.use('/', _routes__WEBPACK_IMPORTED_MODULE_10__["default"]);
 
 server.listen(port, () => {
@@ -718,6 +809,17 @@ module.exports = require("connect-ensure-login");
 
 /***/ }),
 
+/***/ "connect-flash":
+/*!********************************!*\
+  !*** external "connect-flash" ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("connect-flash");
+
+/***/ }),
+
 /***/ "express":
 /*!**************************!*\
   !*** external "express" ***!
@@ -781,6 +883,17 @@ module.exports = require("moment");
 /***/ (function(module, exports) {
 
 module.exports = require("mongoose");
+
+/***/ }),
+
+/***/ "mongoose-beautiful-unique-validation":
+/*!*******************************************************!*\
+  !*** external "mongoose-beautiful-unique-validation" ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("mongoose-beautiful-unique-validation");
 
 /***/ }),
 

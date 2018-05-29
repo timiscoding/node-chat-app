@@ -3,11 +3,15 @@ import { catchAsyncError } from '../utils/helpers';
 
 const User = mongoose.model('User');
 
+const signupForm = (req, res) => {
+  res.render('signup');
+};
+
 const createOne = async (req, res) => {
-  const { email, password } = req.body;
-  const user = new User({ email, password });
-  const newUser = await user.save();
-  res.send(`create user ${newUser}`);
+  const { email, password, username } = req.body;
+  const user = new User({ email, password, username });
+  await user.save();
+  res.redirect('/');
 };
 
 const getOne = async (req, res) => {
@@ -28,4 +32,5 @@ export default {
   getOne: catchAsyncError(getOne),
   updateOne: catchAsyncError(updateOne),
   deleteOne: catchAsyncError(deleteOne),
+  signupForm,
 };
