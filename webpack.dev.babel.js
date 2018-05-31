@@ -9,6 +9,7 @@ export default merge.multiple(common, {
     mode: 'development',
   },
   server: {
+    entry: ['webpack/hot/poll.js?1000'],
     devtool: 'cheap-source-map',
     mode: 'development',
     plugins: [
@@ -18,6 +19,7 @@ export default merge.multiple(common, {
         entryOnly: false,
       }),
       new StartServerPlugin('server.bundle.js'),
+      new webpack.HotModuleReplacementPlugin(),
     ],
   },
 });

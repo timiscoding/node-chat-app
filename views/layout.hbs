@@ -10,13 +10,17 @@
 </head>
 
 <body>
-  {{> header }}
+  <header>
+    {{> header }}
+  </header>
 
-  {{#if flashes}}
-    <pre>{{toJSON flashes}}</pre>
-  {{/if}}
+  <main>
+    {{#if flashes}}
+      <pre>{{toJSON flashes}}</pre>
+    {{/if}}
 
-  {{{body}}}
+    {{{body}}}
+  </main>
 </body>
 
 </html>

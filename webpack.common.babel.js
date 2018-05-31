@@ -18,7 +18,7 @@ export default {
     },
   },
   server: {
-    entry: './server/server.js',
+    entry: ['./server/index.js'],
     output: {
       path: path.join(__dirname, 'server/dist'),
       filename: 'server.bundle.js',
@@ -27,6 +27,6 @@ export default {
     node: {
       __dirname: false,
     },
-    externals: [nodeExternals()],
+    externals: [nodeExternals({ whitelist: [new RegExp('webpack/hot/poll')] })],
   },
 };

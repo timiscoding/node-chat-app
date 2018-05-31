@@ -13,7 +13,6 @@ import genSocketEvents from './socketEvent';
 import globalMiddleware from './middleware';
 import routes from './routes';
 
-const port = process.env.PORT || 3000;
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
@@ -39,6 +38,4 @@ app.use((req, res, next) => {
 });
 app.use('/', routes);
 
-server.listen(port, () => {
-  console.log(`Server started on port ${port}`);
-});
+export { server as default, io };

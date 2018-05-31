@@ -11,6 +11,7 @@ const createOne = async (req, res) => {
   const { email, password, username } = req.body;
   const user = new User({ email, password, username });
   await user.save();
+  req.flash('success', 'New account created!');
   res.redirect('/');
 };
 

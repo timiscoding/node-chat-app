@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack --config webpack.dev.babel.js --progress --watch",
-    "build": "webpack --config webpack.prod.babel.js",
+    "clean": "rimraf server/dist/*",
+    "dev": "npm run clean && webpack --config webpack.dev.babel.js --watch",
+    "build": "npm run clean && webpack --config webpack.prod.babel.js",
     "start": "node server/dist/server.bundle.js",
     "test": "mocha --compilers js:babel-register server/**/*.test.js",
     "test-watch": "npm test -- -w"
@@ -29,6 +30,7 @@
     "mongoose-beautiful-unique-validation": "7.1.1",
     "passport": "0.4.0",
     "passport-local": "1.0.0",
+    "rimraf": "2.6.2",
     "socket.io": "1.4.8",
     "source-map-support": "0.5.6",
     "validator": "10.2.0"
