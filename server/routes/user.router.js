@@ -25,7 +25,7 @@ userRouter.param('id', async (req, res, next, id) => {
 
 userRouter.route('/signup')
   .get(userController.signupForm)
-  .post(userController.createOne);
+  .post(userController.validateNewUser, userController.createOne);
 
 userRouter.route('/user/:id')
   .get(ensureLoggedIn(), userController.getOne)
