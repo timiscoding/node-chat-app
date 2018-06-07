@@ -7,6 +7,14 @@ const loginForm = (req, res) => {
 const loginUser = passport.authenticate('local', {
   successReturnToOrRedirect: '/',
   failureRedirect: '/login',
+  failureFlash: true,
+  successFlash: true,
 });
 
-export default { loginForm, loginUser };
+const logoutUser = (req, res) => {
+  req.logout();
+  req.flash('info', 'You have logged out');
+  res.redirect('/');
+};
+
+export default { loginForm, loginUser, logoutUser };

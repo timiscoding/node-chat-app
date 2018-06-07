@@ -8,17 +8,17 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return done(null, false);
+      return done(null, false, { message: 'User or password is invalid' });
     }
 
     const isValidPassword = await user.isValidPassword(password);
     if (!isValidPassword) {
-      return done(null, false);
+      return done(null, false, { message: 'User or password is invalid' });
     }
 
-    return done(null, user);
+    return done(null, user, { message: `You have logged in, ${user.username}` });
   } catch (err) {
-    return done(err);
+    return done(err, null, { message: 'Could not authenticate. Please try again' });
   }
 }));
 

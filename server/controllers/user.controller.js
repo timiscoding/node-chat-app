@@ -7,10 +7,11 @@ const signupForm = (req, res) => {
   res.render('signup');
 };
 
-const createOne = async (req, res) => {
+const createOne = async (req, res, next) => {
   const { email, password, username } = req.body;
   const user = new User({ email, password, username });
   await user.save();
+  req.login(user, next);
   req.flash('success', 'New account created!');
   res.redirect('/');
 };
