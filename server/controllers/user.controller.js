@@ -14,18 +14,18 @@ const validateNewUser = [
     username: {
       in: 'body',
       isLength: {
-        errorMessage: 'must not be empty',
+        errorMessage: 'Username must not be empty',
         options: { min: 1 },
       },
       isAlphanumeric: {
-        errorMessage: 'must be letters or numbers only',
+        errorMessage: 'Username must be letters or numbers only',
       },
       trim: true,
     },
     email: {
       in: 'body',
       isEmail: {
-        errorMessage: 'must be a valid email',
+        errorMessage: 'Email address is not valid',
       },
       trim: true,
       normalizeEmail: {
@@ -40,7 +40,7 @@ const validateNewUser = [
     password: {
       in: 'body',
       isLength: {
-        errorMessage: 'must be at least 5 characters long',
+        errorMessage: 'Password must be at least 5 characters long',
         options: { min: 5 },
       },
       trim: true,
@@ -50,7 +50,7 @@ const validateNewUser = [
       custom: {
         options: (value, { req }) => {
           if (req.body.password !== value) {
-            throw new Error('Password confirmation does not match password entered');
+            throw new Error('Password confirmation does not match password field');
           }
           return true;
         },
@@ -58,13 +58,12 @@ const validateNewUser = [
     },
   }),
   (req, res, next) => {
-    const errors = validationResult(req);
+    const errors = validationResult(req).formatWith(({ msg }) => msg);
     if (errors.isEmpty()) {
       next();
     } else {
-      req.flash('error', errors.mapped());
-      const { username, email } = req.body;
-      res.render('signup', { body: { username, email }, flashes: req.flash() });
+      req.flash('error', errors.array({ onlyFirstError: true }));
+      res.render('signup', { body: req.body, flashes: req.flash() });
     }
   }];
 
@@ -78,7 +77,9 @@ const createOne = async (req, res, next) => {
     res.redirect('/');
   } catch (err) {
     if (err.errors) {
-      req.flash('error', err.errors);
+      const keys = Object.keys(err.errors);
+      const flashes = keys.map(key => err.errors[key].message);
+      req.flash('error', flashes);
       res.render('signup', { body: { username, email }, flashes: req.flash() });
     } else {
       next(err);

@@ -61,6 +61,45 @@ button:disabled {
   width: 230px;
 }
 
+.flash-messages {
+  padding: 5px;
+  background: rgba(39,107,130,1);
+}
+
+.flash-message {
+  margin: 2px;
+  padding: 3px;
+  font-size: 1.1em;
+  border-radius: 3px;
+}
+
+.flash--success::before {
+  content: '✅';
+  padding-right: 10px;
+}
+
+.flash--success {
+  background: palegreen;
+}
+
+.flash--error::before {
+  content: '⛔️';
+  padding-right: 10px;
+}
+
+.flash--error {
+  background: pink;
+}
+
+.flash--info::before {
+  content: '🔆';
+  padding-right: 10px;
+}
+
+.flash--info {
+  background: lightgoldenrodyellow;
+}
+
 .form-field {
   margin: 20px 0;
 }

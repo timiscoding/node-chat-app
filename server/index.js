@@ -2,7 +2,7 @@
 
 import server, { io } from './server';
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
 let cServer = server;
 let cIo = io;
