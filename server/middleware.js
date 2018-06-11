@@ -9,7 +9,7 @@ export default [
   express.static(path.join(__dirname, '../../public')),
   bodyParser.json(),
   bodyParser.urlencoded({ extended: true }),
-  session({ secret: 'keyboard cat' }),
+  session({ secret: process.env.SESSION_SECRET }),
   passport.initialize(),
   passport.session(),
   flash(),

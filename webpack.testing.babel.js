@@ -1,27 +1,24 @@
 import merge from 'webpack-merge';
 import webpack from 'webpack';
-import StartServerPlugin from 'start-server-webpack-plugin';
 import Dotenv from 'dotenv-webpack';
+
 import common from './webpack.common.babel';
 
 export default merge.multiple(common, {
   client: {
     devtool: 'cheap-source-map',
-    mode: 'development',
+    mode: 'none',
   },
   server: {
-    entry: ['webpack/hot/poll.js?1000'],
     devtool: 'cheap-source-map',
-    mode: 'development',
+    mode: 'none',
     plugins: [
       new webpack.BannerPlugin({
         banner: "require('source-map-support').install();",
         raw: true,
         entryOnly: false,
       }),
-      new StartServerPlugin('server.bundle.js'),
-      new webpack.HotModuleReplacementPlugin(),
-      new Dotenv({ path: './.env.example' }),
+      new Dotenv({ path: './.env.test' }),
     ],
   },
 });
