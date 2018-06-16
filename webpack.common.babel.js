@@ -1,6 +1,8 @@
 import path from 'path';
 import nodeExternals from 'webpack-node-externals';
 
+import WebpackFileDirnamePlugin from './WebpackFileDirnamePlugin';
+
 export default {
   client: {
     entry: {
@@ -28,5 +30,8 @@ export default {
       __dirname: false,
     },
     externals: [nodeExternals({ whitelist: [new RegExp('webpack/hot/poll')] })],
+    plugins: [
+      new WebpackFileDirnamePlugin(),
+    ],
   },
 };

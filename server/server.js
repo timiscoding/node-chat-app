@@ -8,7 +8,6 @@ import hbsUtilities from 'hbs-utils';
 import path from 'path';
 
 import connect from './db';
-import './models';
 import './passport';
 import genSocketEvents from './socketEvent';
 import globalMiddleware from './middleware';
@@ -30,7 +29,7 @@ if (process.env.NODE_ENV === 'development') {
     onchange(template) { console.log(`hbs partial [${template}] added/changed`); },
   };
 }
-hbsRegisterPartials(path.join(__dirname, '../../views/partials'), hbsRegisterPartialsOpt);
+hbsRegisterPartials(path.join(__dirname, '../views/partials'), hbsRegisterPartialsOpt);
 app.set('view engine', 'hbs');
 
 app.use(globalMiddleware);

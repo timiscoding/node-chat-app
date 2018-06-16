@@ -1,24 +1,20 @@
-import merge from 'webpack-merge';
-import webpack from 'webpack';
 import Dotenv from 'dotenv-webpack';
+import nodeExternals from 'webpack-node-externals';
 
-import common from './webpack.common.babel';
+import WebpackFileDirnamePlugin from './WebpackFileDirnamePlugin';
 
-export default merge.multiple(common, {
-  client: {
-    devtool: 'cheap-source-map',
-    mode: 'none',
+export default {
+  output: { // enable sourcemaps support
+    devtoolModuleFilenameTemplate: '[absolute-resource-path]',
+    devtoolFallbackModuleFilenameTemplate: '[absolute-resource-path]?[hash]',
   },
-  server: {
-    devtool: 'cheap-source-map',
-    mode: 'none',
-    plugins: [
-      new webpack.BannerPlugin({
-        banner: "require('source-map-support').install();",
-        raw: true,
-        entryOnly: false,
-      }),
-      new Dotenv({ path: './.env.test' }),
-    ],
-  },
-});
+  target: 'node',
+  node: false, // disable webpack plugins that alter node variables for non-node environments
+  externals: [nodeExternals()],
+  devtool: 'inline-cheap-module-source-map',
+  mode: 'none',
+  plugins: [
+    new Dotenv({ path: './.env.test' }),
+    new WebpackFileDirnamePlugin(),
+  ],
+};
