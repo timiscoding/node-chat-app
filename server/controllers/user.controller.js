@@ -17,8 +17,9 @@ const validateNewUser = [
         errorMessage: 'Username must not be empty',
         options: { min: 1 },
       },
-      isAlphanumeric: {
-        errorMessage: 'Username must be letters or numbers only',
+      matches: {
+        errorMessage: "Username must be letters, numbers, '_', '-' only",
+        options: /^[\w-]+$/,
       },
       trim: true,
     },

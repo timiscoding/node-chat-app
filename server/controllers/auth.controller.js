@@ -17,4 +17,15 @@ const logoutUser = (req, res) => {
   res.redirect('/');
 };
 
-export default { loginForm, loginUser, logoutUser };
+const loginFacebook = passport.authenticate('facebook');
+
+const loginFacebookCallback = passport.authenticate('facebook', {
+  failureRedirect: '/login',
+  failureFlash: 'You did not authorize this app to login via Facebook',
+  successFlash: true,
+  successReturnToOrRedirect: '/',
+});
+
+export default {
+  loginForm, loginUser, logoutUser, loginFacebook, loginFacebookCallback,
+};

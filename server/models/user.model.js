@@ -6,15 +6,15 @@ import beautifyUnique from 'mongoose-beautiful-unique-validation';
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    required: 'You must supply a email',
     unique: 'An account with email {VALUE} already exists',
+    sparse: true, // allows us to add documents without unique fields
     trim: true,
     lowercase: true,
     validate: [isEmail, 'Email is not valid'],
   },
   password: {
     type: String,
-    required: 'You must supply a password',
+    // required: 'You must supply a password',
     trim: true,
     minlength: 5,
   },
@@ -22,7 +22,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: 'Username is required',
     unique: 'Username already taken',
+    sparse: true,
+    lowercase: true,
     trim: true,
+    match: [/^[\w-]+$/, "Username must contain alphanumeric, '-', '_' characters only"],
+  },
+  facebookId: {
+    type: String,
+    unique: 'An account with this Facebook already exists',
+    sparse: true,
   },
 });
 
@@ -39,7 +47,9 @@ userSchema.methods = {
 };
 
 userSchema.pre('save', async function preSaveUser(next) {
-  this.password = await this.hashPassword(this.password);
+  if (this.password) { // password might not be supplied if logging in via oauth
+    this.password = await this.hashPassword(this.password);
+  }
   next();
 });
 

@@ -21,7 +21,7 @@ export default merge.multiple(common, {
       }),
       new StartServerPlugin('server.bundle.js'),
       new webpack.HotModuleReplacementPlugin(),
-      new Dotenv({ path: './.env.example' }),
+      new Dotenv({ path: './.env.dev' }),
     ],
   },
 });
