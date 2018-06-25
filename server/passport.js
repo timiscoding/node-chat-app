@@ -1,6 +1,7 @@
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import FacebookStrategy from 'passport-facebook';
+import TwitterStrategy from 'passport-twitter';
 import mongoose from 'mongoose';
 import _ from 'lodash';
 
@@ -24,6 +25,18 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
   }
 }));
 
+const genUniqueUsername = async (name) => {
+  const snakeCase = name.toLowerCase().replace(/ /g, '_');
+  const usernameRegex = new RegExp(`^${snakeCase}\d*$`);
+  const usernames = await User.find({ username: usernameRegex }, 'username');
+  let newUsername = snakeCase;
+  // find the first unique username with format username<incrementing number>
+  for (let i = 0; _.find(usernames, { username: newUsername }); i += 1) {
+    newUsername = snakeCase + (usernames.length + i);
+  }
+  return newUsername;
+};
+
 passport.use(new FacebookStrategy(
   {
     clientID: process.env.FACEBOOK_APP_ID,
@@ -37,22 +50,41 @@ passport.use(new FacebookStrategy(
         return done(null, user, { message: `You have logged in, ${user.username}` });
       }
 
-      // first time logging in so create a new username for them
-      const name = profile.displayName.toLowerCase().replace(/ /g, '_');
-      const usernameRegex = new RegExp(`^${name}\d*$`);
-      const usernames = await User.find({ username: usernameRegex }, 'username');
-      let newUsername = name;
-      // find the first unique username with format username<incrementing number>
-      for (let i = 0; _.find(usernames, { username: newUsername }); i += 1) {
-        newUsername = name + (usernames.length + i);
-      }
-
-      user = await User.create({ facebookId: profile.id, username: newUsername });
+      user = await User.create({
+        facebookId: profile.id,
+        username: await genUniqueUsername(profile.displayName),
+      });
       return done(null, user, { message: `You have logged in, ${user.username}` });
     } catch (err) {
-      done(err, false, { message: 'Could not authenticate. Please try again' });
+      return done(err, false, { message: 'Could not authenticate. Please try again' });
     }
   }),
+));
+
+passport.use(new TwitterStrategy(
+  {
+    consumerKey: process.env.TWITTER_CONSUMER_KEY,
+    consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+    callbackURL: `${process.env.DOMAIN}/login/twitter/callback`,
+  },
+  async (token, tokenSecret, profile, done) => {
+    try {
+      let user = await User.findOne({ twitterId: profile.id });
+
+      if (user) {
+        return done(null, user, { message: `You have logged in, ${user.username}` });
+      }
+
+      user = await User.create({
+        twitterId: profile.id,
+        username: await genUniqueUsername(profile.username),
+      });
+
+      return done(null, user, { message: `You have logged in, ${user.username}` });
+    } catch (err) {
+      return done(err, false, { message: 'Could not authenticate. Please try again' });
+    }
+  },
 ));
 
 passport.serializeUser((user, done) => done(null, user.id));

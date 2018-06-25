@@ -17,15 +17,16 @@ const logoutUser = (req, res) => {
   res.redirect('/');
 };
 
-const loginFacebook = passport.authenticate('facebook');
-
-const loginFacebookCallback = passport.authenticate('facebook', {
-  failureRedirect: '/login',
-  failureFlash: 'You did not authorize this app to login via Facebook',
-  successFlash: true,
-  successReturnToOrRedirect: '/',
+const genOauthLogin = provider => ({
+  requestPermission: passport.authenticate(provider),
+  callback: passport.authenticate(provider, {
+    successReturnToOrRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: `Permission to login with ${provider[0].toUpperCase() + provider.substring(1).toLowerCase()} was denied`,
+    successFlash: true,
+  }),
 });
 
 export default {
-  loginForm, loginUser, logoutUser, loginFacebook, loginFacebookCallback,
+  loginForm, loginUser, logoutUser, genOauthLogin,
 };

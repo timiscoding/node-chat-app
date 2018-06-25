@@ -14,7 +14,6 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    // required: 'You must supply a password',
     trim: true,
     minlength: 5,
   },
@@ -30,6 +29,11 @@ const userSchema = new mongoose.Schema({
   facebookId: {
     type: String,
     unique: 'An account with this Facebook already exists',
+    sparse: true,
+  },
+  twitterId: {
+    type: String,
+    unique: 'An account with this Twitter already exists',
     sparse: true,
   },
 });
