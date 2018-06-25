@@ -2,6 +2,7 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import FacebookStrategy from 'passport-facebook';
 import TwitterStrategy from 'passport-twitter';
+import { OAuth2Strategy as GoogleStrategy } from 'passport-google-oauth';
 import mongoose from 'mongoose';
 import _ from 'lodash';
 
@@ -37,28 +38,30 @@ const genUniqueUsername = async (name) => {
   return newUsername;
 };
 
+const genOauth2VerifyCallback = provider => async (accessToken, refreshToken, profile, done) => {
+  try {
+    let user = await User.findOne({ [`${provider}Id`]: profile.id });
+    if (user) {
+      return done(null, user, { message: `You have logged in, ${user.username}` });
+    }
+
+    user = await User.create({
+      [`${provider}Id`]: profile.id,
+      username: await genUniqueUsername(profile.username || profile.displayName),
+    });
+    return done(null, user, { message: `You have logged in, ${user.username}` });
+  } catch (err) {
+    return done(err, false, { message: 'Could not authenticate. Please try again' });
+  }
+};
+
 passport.use(new FacebookStrategy(
   {
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
     callbackURL: `${process.env.DOMAIN}/login/facebook/callback`,
   },
-  (async (accessToken, refreshToken, profile, done) => {
-    try {
-      let user = await User.findOne({ facebookId: profile.id });
-      if (user) {
-        return done(null, user, { message: `You have logged in, ${user.username}` });
-      }
-
-      user = await User.create({
-        facebookId: profile.id,
-        username: await genUniqueUsername(profile.displayName),
-      });
-      return done(null, user, { message: `You have logged in, ${user.username}` });
-    } catch (err) {
-      return done(err, false, { message: 'Could not authenticate. Please try again' });
-    }
-  }),
+  genOauth2VerifyCallback('facebook'),
 ));
 
 passport.use(new TwitterStrategy(
@@ -85,6 +88,15 @@ passport.use(new TwitterStrategy(
       return done(err, false, { message: 'Could not authenticate. Please try again' });
     }
   },
+));
+
+passport.use(new GoogleStrategy(
+  {
+    clientID: process.env.GOOGLE_APP_ID,
+    clientSecret: process.env.GOOGLE_APP_SECRET,
+    callbackURL: `${process.env.DOMAIN}/login/google/callback`,
+  },
+  genOauth2VerifyCallback('google'),
 ));
 
 passport.serializeUser((user, done) => done(null, user.id));

@@ -36,6 +36,11 @@ const userSchema = new mongoose.Schema({
     unique: 'An account with this Twitter already exists',
     sparse: true,
   },
+  googleId: {
+    type: String,
+    unique: 'An account with this Google already exists',
+    sparse: true,
+  },
 });
 
 userSchema.methods = {

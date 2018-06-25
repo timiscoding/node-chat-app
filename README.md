@@ -33,3 +33,5 @@ Facebook forces all oauth callback urls to use https which makes it impossible t
 Sign up to [Facebook developers](https://developers.facebook.com/) and create a new app with `Facebook Login`. Under `Facebook Login` > `Settings`, type in the same callback url as the passport config eg. `https://lvh.me/login/facebook/callback` Copy the Client Id and secret into the `.env` file
 
 For Twitter, the process is similar except it uses Consumer key and secret instead. Go to [Twitter Apps](https://apps.twitter.com/).
+
+For Google, create an app on [Google Developers Console](https://console.developers.google.com/) and follow [this guide](https://developers.google.com/identity/protocols/OAuth2WebServer) under `Create authorization credentials` to create a client id and secret.

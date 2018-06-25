@@ -17,8 +17,13 @@ const logoutUser = (req, res) => {
   res.redirect('/');
 };
 
-const genOauthLogin = provider => ({
-  requestPermission: passport.authenticate(provider),
+const genOauthLogin = (provider, config) => ({
+  requestPermission() {
+    if (config.scope) {
+      return passport.authenticate(provider, { scope: config.scope });
+    }
+    return passport.authenticate(provider);
+  },
   callback: passport.authenticate(provider, {
     successReturnToOrRedirect: '/',
     failureRedirect: '/login',

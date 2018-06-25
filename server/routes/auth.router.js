@@ -9,9 +9,18 @@ authRouter.post('/login', authController.loginUser);
 authRouter.get('/logout', authController.logoutUser);
 
 ((providers) => {
-  providers.forEach((provider) => {
-    const { requestPermission, callback } = authController.genOauthLogin(provider);
-    authRouter.get(`/login/${provider}`, requestPermission);
+  providers.forEach(({ provider, config = {} }) => {
+    const { requestPermission, callback } = authController.genOauthLogin(provider, config);
+    authRouter.get(`/login/${provider}`, requestPermission());
     authRouter.get(`/login/${provider}/callback`, callback);
   });
-})(['facebook', 'twitter']);
+})([
+  { provider: 'facebook' },
+  { provider: 'twitter' },
+  {
+    provider: 'google',
+    config: {
+      scope: 'https://www.googleapis.com/auth/userinfo.profile',
+    },
+  },
+]);
