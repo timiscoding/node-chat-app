@@ -1,5 +1,6 @@
 import path from 'path';
 import nodeExternals from 'webpack-node-externals';
+import webpack from 'webpack';
 
 import WebpackFileDirnamePlugin from './WebpackFileDirnamePlugin';
 
@@ -15,8 +16,32 @@ export default {
     },
     module: {
       rules: [
-        { test: /\.js$/, exclude: /node_modules/, use: 'babel-loader' },
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                ['env', {
+                  targets: {
+                    browsers: ['last 2 versions', 'safari >= 7'],
+                  },
+                }],
+              ],
+              babelrc: false,
+            },
+          },
+        },
       ],
+    },
+    plugins: [
+      new webpack.IgnorePlugin(/^\.\/locale$/, /moment/),
+    ],
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+      },
     },
   },
   server: {
