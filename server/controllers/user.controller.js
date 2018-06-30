@@ -70,7 +70,7 @@ const validateNewUser = [
 
 const createOne = async (req, res, next) => {
   const { email, password, username } = req.body;
-  const user = new User({ email, password, username });
+  const user = new User({ local: { email, password, username } });
   try {
     await user.save();
     req.login(user, next);

@@ -19,7 +19,7 @@ export default merge.multiple(common, {
         raw: true,
         entryOnly: false,
       }),
-      new StartServerPlugin('server.bundle.js'),
+      new StartServerPlugin({ name: 'server.bundle.js', keyboard: true }),
       new webpack.HotModuleReplacementPlugin(),
       new Dotenv({ path: './.env.dev' }),
     ],

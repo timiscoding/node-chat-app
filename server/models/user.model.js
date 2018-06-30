@@ -4,42 +4,47 @@ import isEmail from 'validator/lib/isEmail';
 import beautifyUnique from 'mongoose-beautiful-unique-validation';
 
 const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    unique: 'An account with email {VALUE} already exists',
-    sparse: true, // allows us to add documents without unique fields
-    trim: true,
-    lowercase: true,
-    validate: [isEmail, 'Email is not valid'],
+  local: {
+    email: {
+      type: String,
+      unique: 'An account with email {VALUE} already exists',
+      sparse: true, // allows us to add documents without unique fields
+      trim: true,
+      lowercase: true,
+      validate: [isEmail, 'Email is not valid'],
+    },
+    password: {
+      type: String,
+      trim: true,
+      minlength: 5,
+    },
+    username: {
+      type: String,
+      // required: 'Username is required',
+      unique: 'Username already taken',
+      sparse: true,
+      lowercase: true,
+      trim: true,
+      match: [/^[\w-]+$/, "Username must contain alphanumeric, '-', '_' characters only"],
+    },
   },
-  password: {
-    type: String,
-    trim: true,
-    minlength: 5,
+  facebook: {
+    id: String,
+    token: String,
+    displayName: String,
+    email: String,
   },
-  username: {
-    type: String,
-    required: 'Username is required',
-    unique: 'Username already taken',
-    sparse: true,
-    lowercase: true,
-    trim: true,
-    match: [/^[\w-]+$/, "Username must contain alphanumeric, '-', '_' characters only"],
+  twitter: {
+    id: String,
+    token: String,
+    displayName: String,
+    username: String,
   },
-  facebookId: {
-    type: String,
-    unique: 'An account with this Facebook already exists',
-    sparse: true,
-  },
-  twitterId: {
-    type: String,
-    unique: 'An account with this Twitter already exists',
-    sparse: true,
-  },
-  googleId: {
-    type: String,
-    unique: 'An account with this Google already exists',
-    sparse: true,
+  google: {
+    id: String,
+    token: String,
+    displayName: String,
+    email: String,
   },
 });
 
@@ -51,13 +56,13 @@ userSchema.methods = {
     return bcrypt.hash(plaintextPassword, 12);
   },
   isValidPassword(password) {
-    return bcrypt.compare(password, this.password);
+    return bcrypt.compare(password, this.local.password);
   },
 };
 
 userSchema.pre('save', async function preSaveUser(next) {
-  if (this.password) { // password might not be supplied if logging in via oauth
-    this.password = await this.hashPassword(this.password);
+  if (this.local.password) { // password might not be supplied if logging in via oauth
+    this.local.password = await this.hashPassword(this.local.password);
   }
   next();
 });
