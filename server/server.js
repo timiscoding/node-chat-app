@@ -42,7 +42,17 @@ io.on('connection', (socket) => {
 // pass variables to all templates
 app.use((req, res, next) => {
   const flashes = req.flash();
-  res.locals.user = req.user;
+  res.locals.user = req.user && req.user.toObject({
+    transform(doc, ret) {
+      const newRet = Object.assign({}, ret);
+      delete newRet.__v;
+      delete newRet._id;
+      if (ret.local && Object.keys(ret.local).length) {
+        newRet.local.id = doc.id;
+      }
+      return newRet;
+    },
+  });
   res.locals.flashes = Object.keys(flashes).length > 0 ? flashes : undefined;
   next();
 });

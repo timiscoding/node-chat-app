@@ -1,0 +1,37 @@
+<div class="centered">
+  <div class="centered-content">
+    <h3>Accounts</h3>
+    {{#each user as |account|}}
+      {{!-- <p><pre>{{@key}}</pre></p> --}}
+    <table>
+      <thead>
+        <th>{{@key}}</th>
+      </thead>
+      <tbody>
+        {{#each account as |val|}}
+        <tr>
+          <td>{{@key}}</td>
+          <td>{{val}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{/each}}
+
+    <h3>Link accounts</h3>
+    {{#unless user.local}}
+    <a href="/connect/local">Connect to local</a>
+    {{/unless}}
+
+    {{#unless user.facebook}}
+    <a href="/connect/facebook">Connect to Facebook</a>
+    {{/unless}}
+
+    {{#unless user.google}}
+    <a href="/connect/google">Connect to Google</a>
+    {{/unless}}
+
+     {{#unless user.twitter}}
+    <a href="/connect/twitter">Connect to Twitter</a>
+    {{/unless}}
+</div>

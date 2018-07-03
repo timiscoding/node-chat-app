@@ -80,7 +80,8 @@
       "import/no-extraneous-dependencies": "off",
       "import/prefer-default-export": "off",
       "no-unused-expressions": "off",
-      "chai-friendly/no-unused-expressions": "error"
+      "chai-friendly/no-unused-expressions": "error",
+      "no-underscore-dangle": "off"
     },
     "plugins": [
       "chai-friendly"

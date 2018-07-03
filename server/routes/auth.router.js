@@ -3,18 +3,29 @@ import express from 'express';
 import authController from '../controllers/auth.controller';
 import { catchAsyncError } from '../utils/helpers';
 
+const isLoggedIn = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    res.redirect('/');
+  }
+};
+
 export const authRouter = express.Router();
 
 authRouter.get('/login', authController.loginForm);
 authRouter.post('/login', authController.loginUser);
-authRouter.get('/logout', authController.logoutUser);
-authRouter.get('/settings', catchAsyncError(authController.settings));
+authRouter.get('/logout', isLoggedIn, authController.logoutUser);
+authRouter.get('/profile', isLoggedIn, catchAsyncError(authController.profile));
+authRouter.get('/connect/local', authController.loginForm);
+authRouter.post('/connect/local', authController.authLocal, catchAsyncError(authController.linkAccount));
 
 ((providers) => {
-  providers.forEach(({ provider, config = {} }) => {
-    const { requestPermission, callback } = authController.genOauthLogin(provider, config);
-    authRouter.get(`/login/${provider}`, requestPermission());
-    authRouter.get(`/login/${provider}/callback`, callback);
+  providers.forEach(({ provider, config }) => {
+    const { auth, authCb } = authController.genOauthLogin(provider, config);
+    authRouter.get(`/login/${provider}`, auth);
+    authRouter.get(`/login/${provider}/callback`, authCb, catchAsyncError(authController.linkAccount));
+    authRouter.get(`/connect/${provider}`, auth);
   });
 })([
   {

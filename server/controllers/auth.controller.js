@@ -1,14 +1,18 @@
 import passport from 'passport';
+import mongoose from 'mongoose';
+
+const User = mongoose.model('User');
 
 const loginForm = (req, res) => {
   res.render('login');
 };
 
+// logs in a user
 const loginUser = passport.authenticate('local', {
   successReturnToOrRedirect: '/',
   failureRedirect: '/login',
-  failureFlash: true,
-  successFlash: true,
+  failureFlash: 'Email or password is invalid',
+  successFlash: 'You have logged in',
 });
 
 const logoutUser = (req, res) => {
@@ -17,46 +21,72 @@ const logoutUser = (req, res) => {
   res.redirect('/');
 };
 
-const genOauthLogin = (provider, config) => ({
-  requestPermission() {
-    if (config.scope) {
-      return passport.authenticate(provider, { scope: config.scope });
-    }
-    return passport.authenticate(provider);
-  },
-  callback(req, res, next) {
-    passport.authenticate(provider, (err, user, info, status) => {
-      if (err) { return next(err); }
-      if (!user) {
-        req.flash('error', `You did not give permission to login with ${provider[0].toUpperCase() + provider.substring(1)}`);
-        return res.redirect('/login');
-      }
+// checks credentials but does not log them in
+const authLocal = passport.authorize('local', {
+  failureRedirect: '/connect/local',
+  failureFlash: 'Email or password is invalid',
+});
 
-      return req.login(user, (error) => {
-        if (error) { return next(error); }
-        req.flash('success', `You have logged in, ${user[provider].displayName || user[provider].username}`);
-        if (user.firstLogin) { return res.redirect('/settings'); }
-        return res.redirect('/');
-      });
-    })(req, res, next);
+const genOauthLogin = (provider, config = {}) => ({
+  auth(req, res, next) {
+    const fn = req.user ? passport.authorize : passport.authenticate;
+    return fn.call(passport, provider, config.scope && { scope: config.scope })(req, res, next);
+  },
+  authCb(req, res, next) {
+    const fn = req.user ? passport.authorize : passport.authenticate;
+    const routes = req.user ?
+      {
+        failureRedirect: '/profile',
+        failureFlash: `${provider} account was not linked`,
+      } :
+      (err, user, info) => {
+        if (err) { return next(err); }
+        if (!user) {
+          req.flash('error', `Permission to login via ${provider} was denied`);
+          return res.redirect('/login');
+        }
+
+        return req.login(user, (error) => {
+          if (error) { return next(error); }
+          req.flash('success', `You have logged in, ${user[provider].displayName || user[provider].username}`);
+          if (info.firstLogin) { return res.redirect('/profile'); }
+          return res.redirect('/');
+        });
+      };
+    return fn.call(passport, provider, routes)(req, res, next);
   },
 });
 
-const settings = async (req, res) => {
-  // if logging in for first time, show settings page. else, just redirect to home page.
-  const connectedAccounts = [];
-  if (req.user.email) {
-    const localAccount = await User.findOne({ email: profile.emails[0].value });
-    if (localAccount) {
-      connectedAccounts.push({ type: 'local', email });
+const linkAccount = async (req, res, next) => {
+  const { user, account } = req;
+  // user who has already logged in has authorised another account so we need to link them
+  if (user && account) {
+    if (account.local) {
+      /* if req.user is a social account and they try to link to local, then we must delete the
+          local account otherwise there will be a duplicate in the db when we try to add the local
+          info to the social account. Since the user model doesn't allow duplicate emails, it will
+          throw an error if we didn't do this */
+      await User.deleteOne({ 'local.email': account.local.email });
     }
+    Object.assign(user, account.toObject({
+      transform(doc, ret) {
+        const newRet = Object.assign({}, ret);
+        delete newRet.__v;
+        delete newRet._id;
+        return newRet;
+      },
+    }));
+    await user.save();
+    req.flash('success', 'Accounts have been linked');
+    return res.redirect('/profile');
   }
-  // if (req.user.facebookId && profile.provider) {
+  return next();
+};
 
-  // }
-  res.send('this be settings');
+const profile = async (req, res) => {
+  res.render('profile');
 };
 
 export default {
-  loginForm, loginUser, logoutUser, genOauthLogin, settings,
+  loginForm, loginUser, logoutUser, genOauthLogin, profile, authLocal, linkAccount,
 };

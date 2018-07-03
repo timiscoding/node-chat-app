@@ -8,23 +8,30 @@ import _ from 'lodash';
 
 const User = mongoose.model('User');
 
-passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-  try {
-    const user = await User.findOne({ 'local.email': email });
-    if (!user) {
-      return done(null, false, { message: 'User or password is invalid' });
-    }
+passport.use(new LocalStrategy(
+  { usernameField: 'email', passReqToCallback: true },
+  async (req, email, password, done) => {
+    try {
+      const user = await User.findOne({ 'local.email': email });
+      if (!user) {
+        return done(null, false);
+      }
 
-    const isValidPassword = await user.isValidPassword(password);
-    if (!isValidPassword) {
-      return done(null, false, { message: 'User or password is invalid' });
-    }
+      const isValidPassword = await user.isValidPassword(password);
+      if (!isValidPassword) {
+        return done(null, false);
+      }
 
-    return done(null, user, { message: `You have logged in, ${user.local.username}` });
-  } catch (err) {
-    return done(err, null, { message: 'Could not authenticate. Please try again' });
-  }
-}));
+      /* user is either
+         a) already logged in via oauth and trying to link this local account so the user will be
+         injected into req.account
+         b) logging into their local account so the user will be injected into req.user */
+      return done(null, user);
+    } catch (err) {
+      return done(err, null, { message: 'Could not authenticate. Please try again' });
+    }
+  },
+));
 
 const genUniqueUsername = async (name) => {
   if (!name) { return undefined; }
@@ -39,27 +46,36 @@ const genUniqueUsername = async (name) => {
   return newUsername;
 };
 
-const genOauth2VerifyCallback = provider => async (accessToken, refreshToken, profile, done) => {
+const getEmail = profile => profile.emails && profile.emails.length && profile.emails[0].value;
+
+const genOauthCb = provider => async (req, accessToken, refreshTokenOrSecret, profile, done) => {
   try {
     let user = await User.findOne({ [`${provider}.id`]: profile.id });
     if (user) {
       return done(null, user);
     }
 
-    let email;
-    if (profile.emails && profile.emails.length) {
-      email = profile.emails[0].value;
-    }
     user = await User.create({
       [provider]: {
         id: profile.id,
         username: await genUniqueUsername(profile.username),
         displayName: profile.displayName,
         token: accessToken,
-        email,
+        email: getEmail(profile),
       },
     });
-    user.firstLogin = true;
+    if (!req.user) { // not already logged in
+      /* when a user logs in for the first time, we need a way to inform the authController so that
+         they can send them to a profile page to let them change their username if they want.
+         firstLogin is my own custom prop that will be sent to the custom callback whenever
+         passport.auth(enticate|orize)() is called
+         */
+      return done(null, user, { firstLogin: true });
+    }
+
+    /* user already logged in and trying to link another account. Because this callback deals with
+       authentication only, we should supply them with the account they are trying to connect.
+       Linking should be done in another middleware */
     return done(null, user);
   } catch (err) {
     return done(err, false, { message: 'Could not authenticate. Please try again' });
@@ -72,8 +88,9 @@ passport.use(new FacebookStrategy(
     clientSecret: process.env.FACEBOOK_APP_SECRET,
     callbackURL: `${process.env.DOMAIN}/login/facebook/callback`,
     profileFields: ['email', 'displayName'],
+    passReqToCallback: true,
   },
-  genOauth2VerifyCallback('facebook'),
+  genOauthCb('facebook'),
 ));
 
 passport.use(new TwitterStrategy(
@@ -81,29 +98,9 @@ passport.use(new TwitterStrategy(
     consumerKey: process.env.TWITTER_CONSUMER_KEY,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
     callbackURL: `${process.env.DOMAIN}/login/twitter/callback`,
+    passReqToCallback: true,
   },
-  async (token, tokenSecret, profile, done) => {
-    try {
-      let user = await User.findOne({ 'twitter.id': profile.id });
-
-      if (user) {
-        return done(null, user, { message: `You have logged in, ${user.twitter.username}` });
-      }
-
-      user = await User.create({
-        twitter: {
-          id: profile.id,
-          token,
-          username: await genUniqueUsername(profile.username),
-          displayName: profile.displayName,
-        },
-      });
-
-      return done(null, user, { message: `You have logged in, ${user.twitter.username}` });
-    } catch (err) {
-      return done(err, false, { message: 'Could not authenticate. Please try again' });
-    }
-  },
+  genOauthCb('twitter'),
 ));
 
 passport.use(new GoogleStrategy(
@@ -111,8 +108,9 @@ passport.use(new GoogleStrategy(
     clientID: process.env.GOOGLE_APP_ID,
     clientSecret: process.env.GOOGLE_APP_SECRET,
     callbackURL: `${process.env.DOMAIN}/login/google/callback`,
+    passReqToCallback: true,
   },
-  genOauth2VerifyCallback('google'),
+  genOauthCb('google'),
 ));
 
 passport.serializeUser((user, done) => done(null, user.id));
