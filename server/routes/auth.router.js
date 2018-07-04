@@ -19,6 +19,7 @@ authRouter.get('/logout', isLoggedIn, authController.logoutUser);
 authRouter.get('/profile', isLoggedIn, catchAsyncError(authController.profile));
 authRouter.get('/connect/local', authController.loginForm);
 authRouter.post('/connect/local', authController.authLocal, catchAsyncError(authController.linkAccount));
+authRouter.post('/unlink/:account', catchAsyncError(authController.unlinkAccount));
 
 ((providers) => {
   providers.forEach(({ provider, config }) => {

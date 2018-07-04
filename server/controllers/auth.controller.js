@@ -59,28 +59,47 @@ const genOauthLogin = (provider, config = {}) => ({
 
 const linkAccount = async (req, res, next) => {
   const { user, account } = req;
+
   // user who has already logged in has authorised another account so we need to link them
   if (user && account) {
-    if (account.local) {
-      /* if req.user is a social account and they try to link to local, then we must delete the
-          local account otherwise there will be a duplicate in the db when we try to add the local
-          info to the social account. Since the user model doesn't allow duplicate emails, it will
-          throw an error if we didn't do this */
-      await User.deleteOne({ 'local.email': account.local.email });
-    }
-    Object.assign(user, account.toObject({
+    const accountObj = account.toObject({
       transform(doc, ret) {
         const newRet = Object.assign({}, ret);
         delete newRet.__v;
         delete newRet._id;
         return newRet;
       },
-    }));
+    });
+    if (accountObj.local) {
+      /* if req.user is a social account and they try to link to local, then we must delete the
+          local account otherwise there will be a duplicate in the db when we try to add the local
+          info to the social account. Since the user model doesn't allow duplicate emails, it will
+          throw an error if we didn't do this */
+      await User.deleteOne({ 'local.email': accountObj.local.email });
+    }
+    Object.assign(user, accountObj);
     await user.save();
+    await account.remove();
     req.flash('success', 'Accounts have been linked');
     return res.redirect('/profile');
   }
   return next();
+};
+
+const unlinkAccount = async (req, res) => {
+  const type = req.params.account;
+  const { user } = req;
+  if (type === 'local') {
+    const local = Object.assign({}, user.local);
+    user.local = undefined;
+    await user.save();
+    await User.create({ local });
+  } else {
+    user[type].token = undefined;
+    await user.save();
+  }
+  req.flash('success', 'Account has been unlinked');
+  res.redirect('/profile');
 };
 
 const profile = async (req, res) => {
@@ -88,5 +107,5 @@ const profile = async (req, res) => {
 };
 
 export default {
-  loginForm, loginUser, logoutUser, genOauthLogin, profile, authLocal, linkAccount,
+  loginForm, loginUser, logoutUser, genOauthLogin, profile, authLocal, linkAccount, unlinkAccount,
 };

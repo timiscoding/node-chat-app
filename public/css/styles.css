@@ -42,6 +42,14 @@ td:not(:first-of-type) {
   word-break: break-all;
 }
 
+.linkButton {
+  margin: 3px;
+  border: 1px;
+  background: #265f82;
+  color: white;
+  padding: 10px;
+}
+
 .centered-content {
   width: 75vw;
   height: 100vh;

@@ -6,6 +6,7 @@ import socketIO from 'socket.io';
 import hbs from 'hbs';
 import hbsUtilities from 'hbs-utils';
 import path from 'path';
+import Handlebars from 'handlebars';
 
 import connect from './db';
 import './passport';
@@ -20,6 +21,22 @@ connect().catch(err => console.error('Could not connect to DB', err.message));
 
 hbs.localsAsTemplateData(app);
 hbs.registerHelper('toJSON', obj => JSON.stringify(obj, null, 2));
+hbs.registerHelper('linkedAccounts', (accounts) => {
+  let out = '';
+  Object.entries(accounts).forEach(([type, acc]) => {
+    if ((type === 'local' && acc.email) || acc.token) {
+      out += `<tr><td>${type}</td>
+              <td>${type === 'local' ? acc.email : acc.username || acc.displayName}</td>
+              <td><form method="post" action="/unlink/${type}"><button>Unlink</button></form></td></tr>`;
+    }
+  });
+  return new Handlebars.SafeString(out);
+});
+hbs.registerHelper('linkableAccounts', (accounts) => {
+  const accountTypes = ['local', 'twitter', 'google', 'facebook'];
+  const linkable = accountTypes.filter(type => !accounts[type] || (type !== 'local' && !accounts[type].token));
+  return new Handlebars.SafeString(linkable.map(type => `<a class="linkButton" href="/connect/${type}">${type}</a>`).join(''));
+});
 const hbsUtils = hbsUtilities(hbs);
 let hbsRegisterPartials = hbsUtils.registerPartials.bind(hbsUtils);
 let hbsRegisterPartialsOpt = {};

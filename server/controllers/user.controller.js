@@ -70,8 +70,8 @@ const validateNewUser = [
 
 const createOne = async (req, res, next) => {
   const { email, password, username } = req.body;
-  const user = new User({ local: { email, password, username } });
   try {
+    const user = new User({ local: { email, password: await User.hashPassword(password), username } });
     await user.save();
     req.login(user, next);
     req.flash('success', 'New account created!');

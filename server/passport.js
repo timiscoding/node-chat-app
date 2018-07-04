@@ -51,10 +51,47 @@ const getEmail = profile => profile.emails && profile.emails.length && profile.e
 const genOauthCb = provider => async (req, accessToken, refreshTokenOrSecret, profile, done) => {
   try {
     let user = await User.findOne({ [`${provider}.id`]: profile.id });
+    if (!req.user) { // not already logged in
+      if (user) {
+        return done(null, user);
+      }
+
+      user = await User.create({
+        [provider]: {
+          id: profile.id,
+          username: await genUniqueUsername(profile.username),
+          displayName: profile.displayName,
+          token: accessToken,
+          email: getEmail(profile),
+        },
+      });
+
+      /* when a user logs in for the first time, we need a way to inform the authController so that
+         they can send them to a profile page to let them change their username if they want.
+         firstLogin is my own custom prop that will be sent to the custom callback whenever
+         passport.auth(enticate|orize)() is called
+         */
+      return done(null, user, { firstLogin: true });
+    }
+    /* user already logged in and trying to link another account  */
+
+    /* if user tries to link an already linked account, just return the original user */
     if (user) {
+      /* user previously unlinked account and now wants to relink it.
+        we must update the token and other profile info */
+      if (!user[provider].token) {
+        Object.assign(user[provider], {
+          username: await genUniqueUsername(profile.username),
+          displayName: profile.displayName,
+          token: accessToken,
+          email: getEmail(profile),
+        });
+        user = await user.save();
+      }
       return done(null, user);
     }
 
+    /* user linking an account they have never authorised before so lets create it first */
     user = await User.create({
       [provider]: {
         id: profile.id,
@@ -64,18 +101,7 @@ const genOauthCb = provider => async (req, accessToken, refreshTokenOrSecret, pr
         email: getEmail(profile),
       },
     });
-    if (!req.user) { // not already logged in
-      /* when a user logs in for the first time, we need a way to inform the authController so that
-         they can send them to a profile page to let them change their username if they want.
-         firstLogin is my own custom prop that will be sent to the custom callback whenever
-         passport.auth(enticate|orize)() is called
-         */
-      return done(null, user, { firstLogin: true });
-    }
 
-    /* user already logged in and trying to link another account. Because this callback deals with
-       authentication only, we should supply them with the account they are trying to connect.
-       Linking should be done in another middleware */
     return done(null, user);
   } catch (err) {
     return done(err, false, { message: 'Could not authenticate. Please try again' });

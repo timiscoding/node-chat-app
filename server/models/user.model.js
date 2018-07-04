@@ -48,24 +48,16 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.methods = {
-  hashPassword(plaintextPassword) {
-    if (!plaintextPassword) {
-      throw new Error('Password cannot be blank');
-    }
-    return bcrypt.hash(plaintextPassword, 12);
-  },
-  isValidPassword(password) {
-    return bcrypt.compare(password, this.local.password);
-  },
+userSchema.methods.isValidPassword = function isValidPassword(password) {
+  return bcrypt.compare(password, this.local.password);
 };
 
-userSchema.pre('save', async function preSaveUser(next) {
-  if (this.local.password) { // password might not be supplied if logging in via oauth
-    this.local.password = await this.hashPassword(this.local.password);
+userSchema.statics.hashPassword = function hashPassword(plaintextPassword) {
+  if (!plaintextPassword) {
+    throw new Error('Password cannot be blank');
   }
-  next();
-});
+  return bcrypt.hash(plaintextPassword, 12);
+};
 
 // if client tries creating a duplicate on a unique field, it will produce a low level
 // mongo db error. This plugin transforms that error into a mongoose validation error
