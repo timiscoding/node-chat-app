@@ -2,8 +2,18 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import isEmail from 'validator/lib/isEmail';
 import beautifyUnique from 'mongoose-beautiful-unique-validation';
+import _ from 'lodash';
 
 const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: 'Username is required',
+    unique: 'Username already taken',
+    sparse: true,
+    lowercase: true,
+    trim: true,
+    match: [/^[\w-]+$/, "Username must contain alphanumeric, '-', '_' characters only"],
+  },
   local: {
     email: {
       type: String,
@@ -17,15 +27,6 @@ const userSchema = new mongoose.Schema({
       type: String,
       trim: true,
       minlength: 5,
-    },
-    username: {
-      type: String,
-      // required: 'Username is required',
-      unique: 'Username already taken',
-      sparse: true,
-      lowercase: true,
-      trim: true,
-      match: [/^[\w-]+$/, "Username must contain alphanumeric, '-', '_' characters only"],
     },
   },
   facebook: {
@@ -69,6 +70,18 @@ userSchema.statics.hashPassword = function hashPassword(plaintextPassword) {
     throw new Error('Password cannot be blank');
   }
   return bcrypt.hash(plaintextPassword, 12);
+};
+
+userSchema.statics.genUniqueUsername = async function genUniqueUsername(name = 'anon') {
+  const snakeCase = name.toLowerCase().replace(/ /g, '_');
+  const usernameRegex = new RegExp(`^${snakeCase}\d*$`);
+  const usernames = await this.find({ username: usernameRegex }, 'username');
+  let newUsername = snakeCase;
+  // find the first unique username with format username<incrementing number>
+  for (let i = 0; _.find(usernames, { username: newUsername }); i += 1) {
+    newUsername = snakeCase + (usernames.length + i);
+  }
+  return newUsername;
 };
 
 // if client tries creating a duplicate on a unique field, it will produce a low level

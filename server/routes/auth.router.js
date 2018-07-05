@@ -17,18 +17,12 @@ authRouter.get('/login', authController.loginForm);
 authRouter.post('/login', authController.loginUser);
 authRouter.get('/logout', isLoggedIn, authController.logoutUser);
 authRouter.get('/profile', isLoggedIn, catchAsyncError(authController.profile));
-authRouter.get('/link/local', authController.linkLocalForm);
-authRouter.post('/link/local', authController.authLocal, catchAsyncError(authController.linkAccount));
-authRouter.post('/unlink/:account', catchAsyncError(authController.unlinkAccount));
+authRouter.post('/profile', isLoggedIn, authController.validateProfile, catchAsyncError(authController.updateProfile));
+authRouter.get('/link/local', isLoggedIn, authController.linkLocalForm);
+authRouter.post('/link/local', isLoggedIn, authController.authLocal, catchAsyncError(authController.linkAccount));
+authRouter.post('/unlink/:account', isLoggedIn, catchAsyncError(authController.unlinkAccount));
 
-((providers) => {
-  providers.forEach(({ provider, config }) => {
-    const { auth, authCb } = authController.genOauthLogin(provider, config);
-    authRouter.get(`/auth/${provider}`, auth);
-    authRouter.get(`/auth/${provider}/callback`, authCb, catchAsyncError(authController.linkAccount));
-    authRouter.get(`/link/${provider}`, auth);
-  });
-})([
+[
   {
     provider: 'facebook',
     config: {
@@ -42,4 +36,9 @@ authRouter.post('/unlink/:account', catchAsyncError(authController.unlinkAccount
       scope: 'https://www.googleapis.com/auth/userinfo.profile',
     },
   },
-]);
+].forEach(({ provider, config }) => {
+  const { auth, authCb } = authController.genOauthLogin(provider, config);
+  authRouter.get(`/auth/${provider}`, auth);
+  authRouter.get(`/auth/${provider}/callback`, authCb, catchAsyncError(authController.linkAccount));
+  authRouter.get(`/link/${provider}`, isLoggedIn, auth);
+});

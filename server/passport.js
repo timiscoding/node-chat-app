@@ -33,38 +33,35 @@ passport.use(new LocalStrategy(
   },
 ));
 
-const genUniqueUsername = async (name) => {
-  if (!name) { return undefined; }
-  const snakeCase = name.toLowerCase().replace(/ /g, '_');
-  const usernameRegex = new RegExp(`^${snakeCase}\d*$`);
-  const usernames = await User.find({ username: usernameRegex }, 'username');
-  let newUsername = snakeCase;
-  // find the first unique username with format username<incrementing number>
-  for (let i = 0; _.find(usernames, { username: newUsername }); i += 1) {
-    newUsername = snakeCase + (usernames.length + i);
-  }
-  return newUsername;
-};
-
 const getEmail = profile => profile.emails && profile.emails.length && profile.emails[0].value;
+const createAccount = async (provider, token, profile) => User.create({
+  [provider]: {
+    id: profile.id,
+    displayName: profile.displayName,
+    token,
+    email: getEmail(profile),
+  },
+  username: await User.genUniqueUsername(profile.username || profile.displayName),
+});
 
 const genOauthCb = provider => async (req, accessToken, refreshTokenOrSecret, profile, done) => {
   try {
     let user = await User.findOne({ [`${provider}.id`]: profile.id });
     if (!req.user) { // not already logged in
       if (user) {
+        if (!user[provider].token) { // user unlinked this account but has logged in later
+          user[provider] = {
+            id: profile.id,
+            displayName: profile.displayName,
+            token: accessToken,
+            email: getEmail(profile),
+          };
+          user = await user.save();
+        }
         return done(null, user);
       }
 
-      user = await User.create({
-        [provider]: {
-          id: profile.id,
-          username: await genUniqueUsername(profile.username),
-          displayName: profile.displayName,
-          token: accessToken,
-          email: getEmail(profile),
-        },
-      });
+      user = await createAccount(provider, accessToken, profile);
 
       /* when a user logs in for the first time, we need a way to inform the authController so that
          they can send them to a profile page to let them change their username if they want.
@@ -80,29 +77,13 @@ const genOauthCb = provider => async (req, accessToken, refreshTokenOrSecret, pr
       /* user previously unlinked account and now wants to relink it.
         we must update the token and other profile info */
       if (!user[provider].token) {
-        user = await User.create({
-          [provider]: {
-            id: profile.id,
-            username: await genUniqueUsername(profile.username),
-            displayName: profile.displayName,
-            token: accessToken,
-            email: getEmail(profile),
-          },
-        });
+        user = await createAccount(provider, accessToken, profile);
       }
       return done(null, user);
     }
 
     /* user linking an account they have never authorised before so lets create it first */
-    user = await User.create({
-      [provider]: {
-        id: profile.id,
-        username: await genUniqueUsername(profile.username),
-        displayName: profile.displayName,
-        token: accessToken,
-        email: getEmail(profile),
-      },
-    });
+    user = await createAccount(provider, accessToken, profile);
 
     return done(null, user);
   } catch (err) {

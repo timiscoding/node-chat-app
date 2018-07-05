@@ -28,10 +28,9 @@ hbs.registerHelper('linkedAccounts', (user) => {
   Object.entries(accounts).forEach(([type, acc]) => {
     if ((type === 'local' && acc.email) || acc.token) {
       out += `<tr><td>${type}</td>
-              <td>${type === 'local' ? acc.email : acc.username || acc.displayName}</td>`;
-      if (canUnlink) {
-        out += `<td><form method="post" action="/unlink/${type}"><button>Unlink</button></form></td></tr>`;
-      }
+              <td>${type === 'local' ? acc.email : acc.username || acc.displayName}
+              ${canUnlink ? `<form method="post" action="/unlink/${type}"><button>Unlink</button></form>` : ''}
+              </td></tr>`;
     }
   });
   return new Handlebars.SafeString(out);

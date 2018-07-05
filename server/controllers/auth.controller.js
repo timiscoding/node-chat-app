@@ -1,5 +1,8 @@
 import passport from 'passport';
 import mongoose from 'mongoose';
+import { checkSchema, validationResult } from 'express-validator/check';
+
+import userValidatorSchema from './userValidatorSchema';
 
 const User = mongoose.model('User');
 
@@ -77,7 +80,8 @@ const linkAccount = async (req, res, next) => {
           throw an error if we didn't do this */
       await User.deleteOne({ 'local.email': accountObj.local.email });
     }
-    Object.assign(user, accountObj);
+    // merge accounts but preserve original username
+    Object.assign(user, accountObj, { username: user.username });
     await user.save();
     await account.remove();
     req.flash('success', 'Accounts have been linked');
@@ -105,7 +109,7 @@ const unlinkAccount = async (req, res, next) => {
     const local = Object.assign({}, user.local);
     user.local = undefined;
     await user.save();
-    await User.create({ local });
+    await User.create({ local, username: await User.genUniqueUsername() });
   } else {
     user[type].token = undefined;
     await user.save();
@@ -115,9 +119,39 @@ const unlinkAccount = async (req, res, next) => {
 };
 
 const profile = async (req, res) => {
-  res.render('profile');
+  res.render('profile', { body: { username: req.user.username } });
+};
+
+const validateProfile = [
+  checkSchema(userValidatorSchema('username')),
+  (req, res, next) => {
+    const errors = validationResult(req).formatWith(({ msg }) => msg);
+    if (errors.isEmpty()) {
+      next();
+    } else {
+      req.flash('error', errors.array({ onlyFirstError: true }));
+      res.render('profile', { body: req.body, flashes: req.flash() });
+    }
+  },
+];
+
+const updateProfile = async (req, res) => {
+  req.user.username = req.body.username;
+  await req.user.save();
+  req.flash('success', 'Username updated');
+  res.redirect('/profile');
 };
 
 export default {
-  loginForm, loginUser, logoutUser, genOauthLogin, profile, authLocal, linkAccount, unlinkAccount, linkLocalForm,
+  loginForm,
+  loginUser,
+  logoutUser,
+  genOauthLogin,
+  profile,
+  authLocal,
+  linkAccount,
+  unlinkAccount,
+  linkLocalForm,
+  validateProfile,
+  updateProfile,
 };
