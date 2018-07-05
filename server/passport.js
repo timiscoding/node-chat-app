@@ -80,13 +80,15 @@ const genOauthCb = provider => async (req, accessToken, refreshTokenOrSecret, pr
       /* user previously unlinked account and now wants to relink it.
         we must update the token and other profile info */
       if (!user[provider].token) {
-        Object.assign(user[provider], {
-          username: await genUniqueUsername(profile.username),
-          displayName: profile.displayName,
-          token: accessToken,
-          email: getEmail(profile),
+        user = await User.create({
+          [provider]: {
+            id: profile.id,
+            username: await genUniqueUsername(profile.username),
+            displayName: profile.displayName,
+            token: accessToken,
+            email: getEmail(profile),
+          },
         });
-        user = await user.save();
       }
       return done(null, user);
     }
@@ -112,7 +114,7 @@ passport.use(new FacebookStrategy(
   {
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: `${process.env.DOMAIN}/login/facebook/callback`,
+    callbackURL: `${process.env.DOMAIN}/auth/facebook/callback`,
     profileFields: ['email', 'displayName'],
     passReqToCallback: true,
   },
@@ -123,7 +125,7 @@ passport.use(new TwitterStrategy(
   {
     consumerKey: process.env.TWITTER_CONSUMER_KEY,
     consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-    callbackURL: `${process.env.DOMAIN}/login/twitter/callback`,
+    callbackURL: `${process.env.DOMAIN}/auth/twitter/callback`,
     passReqToCallback: true,
   },
   genOauthCb('twitter'),
@@ -133,7 +135,7 @@ passport.use(new GoogleStrategy(
   {
     clientID: process.env.GOOGLE_APP_ID,
     clientSecret: process.env.GOOGLE_APP_SECRET,
-    callbackURL: `${process.env.DOMAIN}/login/google/callback`,
+    callbackURL: `${process.env.DOMAIN}/auth/google/callback`,
     passReqToCallback: true,
   },
   genOauthCb('google'),

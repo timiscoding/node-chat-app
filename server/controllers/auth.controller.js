@@ -3,9 +3,7 @@ import mongoose from 'mongoose';
 
 const User = mongoose.model('User');
 
-const loginForm = (req, res) => {
-  res.render('login');
-};
+const loginForm = (req, res) => res.render('login');
 
 // logs in a user
 const loginUser = passport.authenticate('local', {
@@ -23,9 +21,11 @@ const logoutUser = (req, res) => {
 
 // checks credentials but does not log them in
 const authLocal = passport.authorize('local', {
-  failureRedirect: '/connect/local',
+  failureRedirect: '/link/local',
   failureFlash: 'Email or password is invalid',
 });
+
+const linkLocalForm = (req, res) => res.render('link_local');
 
 const genOauthLogin = (provider, config = {}) => ({
   auth(req, res, next) {
@@ -86,9 +86,21 @@ const linkAccount = async (req, res, next) => {
   return next();
 };
 
-const unlinkAccount = async (req, res) => {
+const unlinkAccount = async (req, res, next) => {
   const type = req.params.account;
+  const types = ['twitter', 'google', 'facebook', 'local'];
   const { user } = req;
+  if (!types.includes(type)) {
+    const err = new Error('Unknown account type');
+    err.status = 400;
+    return next(err);
+  }
+
+  if (user.accountsTotal === 1) {
+    req.flash('error', 'Unable to unlink solo account');
+    return res.redirect('/profile');
+  }
+
   if (type === 'local') {
     const local = Object.assign({}, user.local);
     user.local = undefined;
@@ -107,5 +119,5 @@ const profile = async (req, res) => {
 };
 
 export default {
-  loginForm, loginUser, logoutUser, genOauthLogin, profile, authLocal, linkAccount, unlinkAccount,
+  loginForm, loginUser, logoutUser, genOauthLogin, profile, authLocal, linkAccount, unlinkAccount, linkLocalForm,
 };

@@ -52,6 +52,18 @@ userSchema.methods.isValidPassword = function isValidPassword(password) {
   return bcrypt.compare(password, this.local.password);
 };
 
+const types = ['twitter', 'google', 'facebook', 'local'];
+userSchema.methods.accountsTotal = function accountsTotal() {
+  return Object.keys(this.toObject()).reduce((total, f) => {
+    if (types.includes(f)) {
+      if (f === 'local' || (f !== 'local' && this[f].token)) {
+        return total + 1;
+      }
+    }
+    return total;
+  }, 0);
+};
+
 userSchema.statics.hashPassword = function hashPassword(plaintextPassword) {
   if (!plaintextPassword) {
     throw new Error('Password cannot be blank');

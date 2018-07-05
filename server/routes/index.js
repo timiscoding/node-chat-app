@@ -29,8 +29,15 @@ routes.use((err, req, res, next) => {
   return res.redirect('back');
 });
 
+if (process.env.NODE_ENV === 'development') {
+  routes.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+    res.status(err.status || 500).send(`something messed up: ${err.message}`);
+  });
+}
+
 routes.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  res.status(500).send(`something messed up: ${err.message}`);
+  const status = err.status || 500;
+  res.status(status).render('error', { status, message: err.message });
 });
 
 export default routes;

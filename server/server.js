@@ -21,21 +21,26 @@ connect().catch(err => console.error('Could not connect to DB', err.message));
 
 hbs.localsAsTemplateData(app);
 hbs.registerHelper('toJSON', obj => JSON.stringify(obj, null, 2));
-hbs.registerHelper('linkedAccounts', (accounts) => {
+hbs.registerHelper('linkedAccounts', (user) => {
   let out = '';
+  const accounts = user.toObject();
+  const canUnlink = user.accountsTotal() > 1;
   Object.entries(accounts).forEach(([type, acc]) => {
     if ((type === 'local' && acc.email) || acc.token) {
       out += `<tr><td>${type}</td>
-              <td>${type === 'local' ? acc.email : acc.username || acc.displayName}</td>
-              <td><form method="post" action="/unlink/${type}"><button>Unlink</button></form></td></tr>`;
+              <td>${type === 'local' ? acc.email : acc.username || acc.displayName}</td>`;
+      if (canUnlink) {
+        out += `<td><form method="post" action="/unlink/${type}"><button>Unlink</button></form></td></tr>`;
+      }
     }
   });
   return new Handlebars.SafeString(out);
 });
-hbs.registerHelper('linkableAccounts', (accounts) => {
+hbs.registerHelper('linkableAccounts', (user) => {
+  const accounts = user.toObject();
   const accountTypes = ['local', 'twitter', 'google', 'facebook'];
   const linkable = accountTypes.filter(type => !accounts[type] || (type !== 'local' && !accounts[type].token));
-  return new Handlebars.SafeString(linkable.map(type => `<a class="linkButton" href="/connect/${type}">${type}</a>`).join(''));
+  return new Handlebars.SafeString(linkable.map(type => `<a class="linkButton" href="/link/${type}">${type}</a>`).join(''));
 });
 const hbsUtils = hbsUtilities(hbs);
 let hbsRegisterPartials = hbsUtils.registerPartials.bind(hbsUtils);
@@ -59,17 +64,7 @@ io.on('connection', (socket) => {
 // pass variables to all templates
 app.use((req, res, next) => {
   const flashes = req.flash();
-  res.locals.user = req.user && req.user.toObject({
-    transform(doc, ret) {
-      const newRet = Object.assign({}, ret);
-      delete newRet.__v;
-      delete newRet._id;
-      if (ret.local && Object.keys(ret.local).length) {
-        newRet.local.id = doc.id;
-      }
-      return newRet;
-    },
-  });
+  res.locals.user = req.user;
   res.locals.flashes = Object.keys(flashes).length > 0 ? flashes : undefined;
   next();
 });

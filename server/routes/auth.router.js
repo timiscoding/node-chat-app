@@ -17,16 +17,16 @@ authRouter.get('/login', authController.loginForm);
 authRouter.post('/login', authController.loginUser);
 authRouter.get('/logout', isLoggedIn, authController.logoutUser);
 authRouter.get('/profile', isLoggedIn, catchAsyncError(authController.profile));
-authRouter.get('/connect/local', authController.loginForm);
-authRouter.post('/connect/local', authController.authLocal, catchAsyncError(authController.linkAccount));
+authRouter.get('/link/local', authController.linkLocalForm);
+authRouter.post('/link/local', authController.authLocal, catchAsyncError(authController.linkAccount));
 authRouter.post('/unlink/:account', catchAsyncError(authController.unlinkAccount));
 
 ((providers) => {
   providers.forEach(({ provider, config }) => {
     const { auth, authCb } = authController.genOauthLogin(provider, config);
-    authRouter.get(`/login/${provider}`, auth);
-    authRouter.get(`/login/${provider}/callback`, authCb, catchAsyncError(authController.linkAccount));
-    authRouter.get(`/connect/${provider}`, auth);
+    authRouter.get(`/auth/${provider}`, auth);
+    authRouter.get(`/auth/${provider}/callback`, authCb, catchAsyncError(authController.linkAccount));
+    authRouter.get(`/link/${provider}`, auth);
   });
 })([
   {
