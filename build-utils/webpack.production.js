@@ -1,8 +1,6 @@
-import merge from 'webpack-merge';
-import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import common from './webpack.common.babel';
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-export default merge.multiple(common, {
+module.exports = {
   client: {
     devtool: 'source-map',
     mode: 'production',
@@ -16,4 +14,4 @@ export default merge.multiple(common, {
     devtool: 'source-map',
     mode: 'production',
   },
-});
+};

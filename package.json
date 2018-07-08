@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "clean": "rimraf server/dist/*",
-    "dev": "npm run clean && webpack --config webpack.dev.babel.js --watch",
-    "build": "npm run clean && webpack --config webpack.prod.babel.js",
+    "dev": "npm run clean && webpack --env.mode development --watch",
+    "prod": "npm run clean && webpack --env.mode production",
     "start": "node server/dist/server.bundle.js",
-    "test": "mocha-webpack --webpack-config webpack.testing.babel.js \"server/**/*.test.js\"",
+    "test": "mocha-webpack --webpack-config build-utils/webpack.testing.js \"server/**/*.test.js\"",
     "test-watch": "npm test -- -w"
   },
   "engines": {

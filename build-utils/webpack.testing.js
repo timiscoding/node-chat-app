@@ -1,9 +1,9 @@
-import Dotenv from 'dotenv-webpack';
-import nodeExternals from 'webpack-node-externals';
+const Dotenv = require('dotenv-webpack');
+const nodeExternals = require('webpack-node-externals');
 
-import WebpackFileDirnamePlugin from './WebpackFileDirnamePlugin';
+const WebpackFileDirnamePlugin = require('./WebpackFileDirnamePlugin');
 
-export default {
+module.exports = {
   output: { // enable sourcemaps support
     devtoolModuleFilenameTemplate: '[absolute-resource-path]',
     devtoolFallbackModuleFilenameTemplate: '[absolute-resource-path]?[hash]',

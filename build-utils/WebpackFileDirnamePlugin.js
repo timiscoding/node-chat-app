@@ -29,7 +29,7 @@
   Adapted plugin from https://github.com/webpack/webpack/blob/02a955b4335cb7eeeb4dd1c96ef5407c6bcea158/lib/NodeStuffPlugin.js
 */
 
-export default class WebpackFileDirnamePlugin {
+class WebpackFileDirnamePlugin {
   apply(compiler) {
     compiler.hooks.compilation.tap(
       'WebpackFileDirnamePlugin',
@@ -61,3 +61,5 @@ export default class WebpackFileDirnamePlugin {
     );
   }
 }
+
+module.exports = WebpackFileDirnamePlugin;
