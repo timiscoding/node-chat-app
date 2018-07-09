@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "clean": "rimraf server/dist/*",
+    "clean": "rimraf server/dist",
     "dev": "npm run clean && webpack --env.mode development --watch",
     "prod": "npm run clean && webpack --env.mode production",
+    "prod:analyze": "npm run prod -- --env.presets analyze",
     "start": "node server/dist/server.bundle.js",
     "test": "mocha-webpack --webpack-config build-utils/webpack.testing.js \"server/**/*.test.js\"",
-    "test-watch": "npm test -- -w"
+    "test:watch": "npm test -- -w"
   },
   "engines": {
     "node": "9.2.0"

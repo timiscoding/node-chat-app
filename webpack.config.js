@@ -1,14 +1,15 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const webpack = require('webpack');
-const WebpackMerge = require('webpack-merge');
+const merge = require('webpack-merge');
 
 const WebpackFileDirnamePlugin = require('./build-utils/WebpackFileDirnamePlugin');
+const presetsConfig = require('./build-utils/loadPresets');
 
-const envConfig = env => require(`./build-utils/webpack.${env}.js`);
+const modeConfig = mode => require(`./build-utils/webpack.${mode}.js`);
 
-module.exports = ({ mode } = { mode: 'production' }) => (
-  WebpackMerge.multiple(
+module.exports = ({ mode, presets = [] } = { mode: 'production', presets: [] }) => (
+  merge.multiple(
     {
       client: {
         mode,
@@ -67,6 +68,7 @@ module.exports = ({ mode } = { mode: 'production' }) => (
         ],
       },
     },
-    envConfig(mode),
+    modeConfig(mode),
+    presetsConfig({ presets, mode }),
   )
 );
