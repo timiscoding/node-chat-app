@@ -12,7 +12,7 @@ const loginForm = (req, res) => res.render('login');
 const loginUser = passport.authenticate('local', {
   successReturnToOrRedirect: '/',
   failureRedirect: '/login',
-  failureFlash: 'Email or password is invalid',
+  failureFlash: true,
   successFlash: 'You have logged in',
 });
 

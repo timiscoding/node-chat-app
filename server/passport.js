@@ -14,12 +14,16 @@ passport.use(new LocalStrategy(
     try {
       const user = await User.findOne({ 'local.email': email });
       if (!user) {
-        return done(null, false);
+        return done(null, false, { message: 'Email or password is invalid' });
       }
 
       const isValidPassword = await user.isValidPassword(password);
       if (!isValidPassword) {
-        return done(null, false);
+        return done(null, false, { message: 'Email or password is invalid' });
+      }
+
+      if (!user.local.isVerified) {
+        return done(null, false, { message: 'Your account needs to be verified via email before you can log in' });
       }
 
       /* user is either

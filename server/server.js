@@ -7,9 +7,11 @@ import hbs from 'hbs';
 import hbsUtilities from 'hbs-utils';
 import path from 'path';
 import Handlebars from 'handlebars';
+import { promisify } from 'es6-promisify';
 
 import connect from './db';
 import './passport';
+import './mailer';
 import genSocketEvents from './socketEvent';
 import globalMiddleware from './middleware';
 import routes from './routes';
@@ -53,11 +55,21 @@ if (process.env.NODE_ENV === 'development') {
 hbsRegisterPartials(path.join(__dirname, '../views/partials'), hbsRegisterPartialsOpt);
 app.set('view engine', 'hbs');
 
+/* without this, express incorrectly gets wrong header info because it thinks requests are coming
+   from nginx so for eg. req.protocol would be 'http' when it should be 'https' */
+app.set('trust proxy', true);
+
 app.use(globalMiddleware);
 
 io.on('connection', (socket) => {
   console.log('New user connected');
   genSocketEvents(socket, io);
+});
+
+// convert callback based methods to use promises
+app.use((req, res, next) => {
+  req.login = promisify(req.login.bind(req));
+  next();
 });
 
 // pass variables to all templates

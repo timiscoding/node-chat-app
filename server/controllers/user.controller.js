@@ -1,10 +1,13 @@
 import mongoose from 'mongoose';
 import { checkSchema, validationResult } from 'express-validator/check';
+import crypto from 'crypto';
 
 import userValidatorSchema from './userValidatorSchema';
 import { catchAsyncError } from '../utils/helpers';
+import { sendMail } from '../mailer';
 
 const User = mongoose.model('User');
+const EmailVerifyToken = mongoose.model('EmailVerifyToken');
 
 const signupForm = (req, res) => {
   res.render('signup');
@@ -25,13 +28,20 @@ const validateNewUser = [
 const createOne = async (req, res, next) => {
   const { email, password, username } = req.body;
   try {
-    const user = new User({
+    const user = await User.create({
       local: { email, password: await User.hashPassword(password) },
       username,
     });
-    await user.save();
-    req.login(user, next);
-    req.flash('success', 'New account created!');
+
+    const emailToken = await EmailVerifyToken.create({
+      user: user.id,
+      token: crypto.randomBytes(20).toString('hex'),
+    });
+
+    const verifyURL = `${req.protocol}://${req.hostname}/confirm/${emailToken.token}`;
+    sendMail(email, 'Welcome to node-chat-app. Confirm your email', `By clicking the link, you are confirming your email address. ${verifyURL}`);
+
+    req.flash('info', `An email has been sent to ${email}. Please confirm your email to complete sign up.`);
     res.redirect('/');
   } catch (err) {
     if (err.errors) {
@@ -43,6 +53,21 @@ const createOne = async (req, res, next) => {
       next(err);
     }
   }
+};
+
+const confirmEmail = async (req, res) => {
+  const token = await EmailVerifyToken.findOneAndRemove({ token: req.params.token }).populate('user');
+  if (!token) {
+    req.flash('error', 'Email verification invalid. Please check the link.');
+    return res.redirect('/');
+  }
+
+  const { user } = token;
+  user.local.isVerified = true;
+  await user.save();
+  await req.login(user);
+  req.flash('success', 'Your email has been confirmed. You are now logged in');
+  return res.redirect('/');
 };
 
 const getOne = async (req, res) => {
@@ -59,10 +84,11 @@ const deleteOne = (req, res) => {
 };
 
 export default {
-  createOne,
+  createOne: catchAsyncError(createOne),
   getOne: catchAsyncError(getOne),
   updateOne: catchAsyncError(updateOne),
   deleteOne: catchAsyncError(deleteOne),
   signupForm,
   validateNewUser,
+  confirmEmail: catchAsyncError(confirmEmail),
 };

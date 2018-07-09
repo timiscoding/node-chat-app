@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
       trim: true,
       minlength: 5,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   facebook: {
     id: String,

@@ -31,3 +31,5 @@ userRouter.route('/user/:id')
   .get(ensureLoggedIn(), userController.getOne)
   .put(userController.updateOne)
   .delete(userController.deleteOne);
+
+userRouter.get('/confirm/:token', userController.confirmEmail);
