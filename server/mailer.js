@@ -1,6 +1,7 @@
-import nodemailer from 'nodemailer';
+import Email from 'email-templates';
+import path from 'path';
 
-const options = {
+const transport = {
   port: process.env.MAILER_PORT,
   host: process.env.MAILER_HOST,
   auth: {
@@ -9,22 +10,34 @@ const options = {
   },
 };
 
-const transporter = nodemailer.createTransport(options);
-
-transporter.verify((err) => {
-  if (err) {
-    console.log('mailer error:', err);
-  } else {
-    console.log('Mailer connected and authed');
-  }
+const email = new Email({
+  message: {
+    from: 'no-reply@timiscoding.me',
+  },
+  // send: true, uncomment to send emails in dev env
+  // transport: {
+  //   jsonTransport: true,
+  // },
+  juice: true,
+  juiceResources: {
+    webResources: {
+      relativeTo: path.join(__dirname, '../views/emails/build'),
+    },
+  },
+  views: {
+    root: path.join(__dirname, '../views/emails'),
+  },
 });
 
-const sendMail = (to, subject, text, html) => transporter.sendMail({
-  to,
-  from: 'noreply@timiscoding.com',
-  subject,
-  text,
-  html,
-});
+email.send({
+  template: 'mars',
+  message: {
+    to: 'some@alien.com',
+  },
+  locals: {
+    name: 'ET',
+  },
+})
+  .then(console.log)
+  .catch(console.error);
 
-export { sendMail };
