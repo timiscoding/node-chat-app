@@ -1,6 +1,7 @@
 body {
   margin: 0;
-  padding: 0;
+  padding: 20px 0;
+  background: #f5f5f5;
 }
 
 table, td{
@@ -8,7 +9,7 @@ table, td{
 }
 
 #tableBody {
-  background: whitesmoke;
+  background: #f5f5f5;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
   height:100% !important;
@@ -17,24 +18,16 @@ table, td{
   width:100% !important;
 }
 
-.button {
-  background-color: #377eb8;
-  border: 1px solid #353535;
-  border-radius: 5px;
-}
-
-.button td {
-  color: white;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 16px;
-  font-weight: bold;
-  letter-spacing: -.5px;
-  line-height: 150%;
-  padding: 15px 30px 15px 30px;
-}
-
 .button a {
-  color: white;
+  background-color: #377eb8;
+  border-radius: 4px;
+  border-bottom: 2px solid #2b6391;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #ffffff;
+  display: block;
+  font-size: 16px;
+  padding: 10px 30px 10px 30px;
   text-decoration: none;
 }
 
@@ -44,7 +37,7 @@ table, td{
 
 .emailContainer {
   border-collapse: collapse;
-  background: white;
+  background: #ffffff;
 }
 
 .emailBody {
@@ -52,31 +45,28 @@ table, td{
 }
 
 .header {
-  background-image: url('http://placeimg.com/400/150/arch/grayscale');
+  background-image: url('http://placeimg.com/600/100/arch/grayscale');
 }
 
 .logo {
-  color: #53bdff;
+  color: #2fafff;
+  font-size: 20px;
+  font-weight: bold;
   text-align: center;
-  text-shadow: 2px 2px 2px white, 2px -2px 2px white, -2px 2px 2px white, -2px -2px 2px white;
   text-decoration: none;
 }
 
 .content {
-  background: white;
+  background: #ffffff;
   padding: 40px 30px 40px 30px;
 }
 
 .footer {
   background: #698ea5;
   padding: 10px 20px 10px 20px;
-  color: white;
-}
-
-.footer td {
-  padding: 0 10px 0 0;
+  color: #ffffff;
 }
 
 .footerLink {
-  color: lightcyan;
+  color: #e0ffff;
 }

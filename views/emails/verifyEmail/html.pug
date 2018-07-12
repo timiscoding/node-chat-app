@@ -1,0 +1,24 @@
+extends ../layout
+
+include ../mixins/_button
+
+block content
+  td.content
+    table(border="0" cellpadding="0" cellspacing="0" width="100%")
+      tr
+        td Hi #{name}
+      tr
+        td.emailBody
+          table(border="0" cellpadding="0" cellspacing="0" width="100%")
+            tr
+              td.p A Node Chat App account was created using this email. To complete sign up, please click the button.
+            tr
+              td.p If you did not create an account, simply ignore this email.
+            tr
+              td.p(align="center")
+                +button('Confirm email', confirmURL)
+      tr
+        td Regards
+      tr
+        td - timiscoding
+

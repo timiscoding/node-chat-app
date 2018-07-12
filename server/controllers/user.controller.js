@@ -4,7 +4,7 @@ import crypto from 'crypto';
 
 import userValidatorSchema from './userValidatorSchema';
 import { catchAsyncError } from '../utils/helpers';
-// import { sendMail } from '../mailer';
+import mailer from '../mailer';
 
 const User = mongoose.model('User');
 const EmailVerifyToken = mongoose.model('EmailVerifyToken');
@@ -38,8 +38,16 @@ const createOne = async (req, res, next) => {
       token: crypto.randomBytes(20).toString('hex'),
     });
 
-    const verifyURL = `${req.protocol}://${req.hostname}/confirm/${emailToken.token}`;
-    // sendMail(email, 'Welcome to node-chat-app. Confirm your email', `By clicking the link, you are confirming your email address. ${verifyURL}`);
+    await mailer.send({
+      template: 'verifyEmail',
+      message: {
+        to: email,
+      },
+      locals: {
+        name: username,
+        confirmURL: `${req.protocol}://${req.hostname}/confirm/${emailToken.token}`,
+      },
+    });
 
     req.flash('info', `An email has been sent to ${email}. Please confirm your email to complete sign up.`);
     res.redirect('/');
