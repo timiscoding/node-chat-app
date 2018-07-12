@@ -1,8 +1,7 @@
 import passport from 'passport';
 import mongoose from 'mongoose';
-import { checkSchema, validationResult } from 'express-validator/check';
 
-import userValidatorSchema from './userValidatorSchema';
+import { userValidatorSchema, validateUserForm } from './userValidator';
 
 const User = mongoose.model('User');
 
@@ -122,18 +121,7 @@ const profile = async (req, res) => {
   res.render('profile', { body: { username: req.user.username } });
 };
 
-const validateProfile = [
-  checkSchema(userValidatorSchema('username')),
-  (req, res, next) => {
-    const errors = validationResult(req).formatWith(({ msg }) => msg);
-    if (errors.isEmpty()) {
-      next();
-    } else {
-      req.flash('error', errors.array({ onlyFirstError: true }));
-      res.render('profile', { body: req.body, flashes: req.flash() });
-    }
-  },
-];
+const validateProfile = validateUserForm(userValidatorSchema('username'), 'profile');
 
 const updateProfile = async (req, res) => {
   req.user.username = req.body.username;

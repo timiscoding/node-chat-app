@@ -23,7 +23,7 @@ passport.use(new LocalStrategy(
       }
 
       if (!user.local.isVerified) {
-        return done(null, false, { message: 'Your account needs to be verified via email before you can log in' });
+        return done(null, false, { message: 'The email has not been verified for this account. <a href="/resend">Resend email confirmation</a>' });
       }
 
       /* user is either

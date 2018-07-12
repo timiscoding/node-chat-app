@@ -25,7 +25,7 @@ userRouter.param('id', async (req, res, next, id) => {
 
 userRouter.route('/signup')
   .get(userController.signupForm)
-  .post(userController.validateNewUser, userController.createOne);
+  .post(userController.validateNewUser, userController.createOne, userController.sendConfirmEmail);
 
 userRouter.route('/user/:id')
   .get(ensureLoggedIn(), userController.getOne)
@@ -33,3 +33,6 @@ userRouter.route('/user/:id')
   .delete(userController.deleteOne);
 
 userRouter.get('/confirm/:token', userController.confirmEmail);
+userRouter.route('/resend')
+  .get(userController.requestResend)
+  .post(userController.validateResend, userController.resend, userController.sendConfirmEmail);

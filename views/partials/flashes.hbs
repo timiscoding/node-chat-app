@@ -3,7 +3,7 @@
   <div class="flash-messages">
     {{#each flashes as |messages category|}}
       {{#each messages}}
-        <div class="flash--{{category}} flash-message">{{this}}</div>
+        <div class="flash--{{category}} flash-message">{{{this}}}</div>
       {{/each}}
     {{/each}}
   </div>

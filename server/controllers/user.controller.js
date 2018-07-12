@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
-import { checkSchema, validationResult } from 'express-validator/check';
 import crypto from 'crypto';
 
-import userValidatorSchema from './userValidatorSchema';
+import { userValidatorSchema, validateUserForm } from './userValidator';
 import { catchAsyncError } from '../utils/helpers';
 import mailer from '../mailer';
 
@@ -13,17 +12,7 @@ const signupForm = (req, res) => {
   res.render('signup');
 };
 
-const validateNewUser = [
-  checkSchema(userValidatorSchema()),
-  (req, res, next) => {
-    const errors = validationResult(req).formatWith(({ msg }) => msg);
-    if (errors.isEmpty()) {
-      next();
-    } else {
-      req.flash('error', errors.array({ onlyFirstError: true }));
-      res.render('signup', { body: req.body, flashes: req.flash() });
-    }
-  }];
+const validateNewUser = validateUserForm(userValidatorSchema(), 'signup');
 
 const createOne = async (req, res, next) => {
   const { email, password, username } = req.body;
@@ -33,24 +22,8 @@ const createOne = async (req, res, next) => {
       username,
     });
 
-    const emailToken = await EmailVerifyToken.create({
-      user: user.id,
-      token: crypto.randomBytes(20).toString('hex'),
-    });
-
-    await mailer.send({
-      template: 'verifyEmail',
-      message: {
-        to: email,
-      },
-      locals: {
-        name: username,
-        confirmURL: `${req.protocol}://${req.hostname}/confirm/${emailToken.token}`,
-      },
-    });
-
-    req.flash('info', `An email has been sent to ${email}. Please confirm your email to complete sign up.`);
-    res.redirect('/');
+    req.emailToken = await EmailVerifyToken.createToken(user.id);
+    next();
   } catch (err) {
     if (err.errors) {
       const keys = Object.keys(err.errors);
@@ -63,10 +36,29 @@ const createOne = async (req, res, next) => {
   }
 };
 
+const sendConfirmEmail = (req, res) => {
+  const { email, username } = req.body;
+
+  mailer.send({
+    template: 'verifyEmail',
+    message: {
+      to: email,
+    },
+    locals: {
+      name: username,
+      confirmURL: `${req.protocol}://${req.hostname}/confirm/${req.emailToken.token}`,
+    },
+  });
+
+  req.flash('info', `An email has been sent to ${email}. Please confirm your email to complete sign up.`);
+  res.redirect('/');
+};
+
 const confirmEmail = async (req, res) => {
   const token = await EmailVerifyToken.findOneAndRemove({ token: req.params.token }).populate('user');
   if (!token) {
-    req.flash('error', 'Email verification invalid. Please check the link.');
+    req.flash('error', `Email verification invalid. Either the link does not match the one provided
+      in the email or the link may have expired. <a href="/resend">Resend email confirmation</a>`);
     return res.redirect('/');
   }
 
@@ -76,6 +68,32 @@ const confirmEmail = async (req, res) => {
   await req.login(user);
   req.flash('success', 'Your email has been confirmed. You are now logged in');
   return res.redirect('/');
+};
+
+/* Resend confirmation email */
+
+const requestResend = (req, res) => {
+  res.render('requestConfirmEmail');
+};
+
+const validateResend = validateUserForm(userValidatorSchema('email'), 'requestConfirmEmail');
+
+const resend = async (req, res, next) => {
+  const user = await User.findOne({ 'local.email': req.body.email });
+
+  if (!user || !user.local) {
+    req.flash('info', 'An account with this email does not exist');
+    return res.render('requestConfirmEmail', { body: req.body, flashes: req.flash() });
+  }
+
+  if (user.local && user.local.isVerified) {
+    req.flash('info', 'The email for this account is already confirmed');
+    return res.redirect('/');
+  }
+
+  req.emailToken = await EmailVerifyToken.findOneOrCreate(user.id);
+  req.body.username = user.username;
+  return next();
 };
 
 const getOne = async (req, res) => {
@@ -99,4 +117,8 @@ export default {
   signupForm,
   validateNewUser,
   confirmEmail: catchAsyncError(confirmEmail),
+  requestResend,
+  validateResend,
+  resend,
+  sendConfirmEmail,
 };
