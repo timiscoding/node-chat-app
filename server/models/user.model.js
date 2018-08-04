@@ -51,6 +51,8 @@ const userSchema = new mongoose.Schema({
     displayName: String,
     email: String,
   },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 userSchema.methods.isValidPassword = function isValidPassword(password) {

@@ -1,0 +1,24 @@
+extends ../layout
+
+include ../mixins/_button
+
+block content
+  td.content
+    table(border="0" cellpadding="0" cellspacing="0" width="100%")
+      tr
+        td Hi #{name}
+      tr
+        td.emailBody
+          table(border="0" cellpadding="0" cellspacing="0" width="100%")
+            tr
+              td.p A password reset was requested using this email. To reset your password, please click the button.
+            tr
+              td.p If you did not request this reset, simply ignore this email.
+            tr
+              td.p(align="center")
+                +button('Reset password', resetURL)
+      tr
+        td Regards
+      tr
+        td - timiscoding
+

@@ -32,7 +32,15 @@ userRouter.route('/user/:id')
   .put(userController.updateOne)
   .delete(userController.deleteOne);
 
-userRouter.get('/confirm/:token', userController.confirmEmail);
 userRouter.route('/resend')
   .get(userController.requestResend)
-  .post(userController.validateResend, userController.resend, userController.sendConfirmEmail);
+  .post(userController.validateEmail, userController.resend, userController.sendConfirmEmail);
+userRouter.get('/confirm/:token', userController.confirmEmail);
+
+userRouter.route('/forgot')
+  .get(userController.forgotPasswordForm)
+  .post(userController.validateEmail, userController.forgotPassword, userController.sendResetEmail);
+
+userRouter.route('/reset/:token')
+  .get(userController.validResetToken, userController.resetPasswordForm)
+  .post(userController.validResetToken, userController.validatePassword, userController.resetPassword, userController.sendPasswordUpdatedEmail);

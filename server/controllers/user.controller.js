@@ -73,17 +73,17 @@ const confirmEmail = async (req, res) => {
 /* Resend confirmation email */
 
 const requestResend = (req, res) => {
-  res.render('requestConfirmEmail');
+  res.render('requestEmail', { confirmEmail: true });
 };
 
-const validateResend = validateUserForm(userValidatorSchema('email'), 'requestConfirmEmail');
+const validateEmail = validateUserForm(userValidatorSchema('email'), 'requestEmail');
 
 const resend = async (req, res, next) => {
   const user = await User.findOne({ 'local.email': req.body.email });
 
   if (!user || !user.local) {
     req.flash('info', 'An account with this email does not exist');
-    return res.render('requestConfirmEmail', { body: req.body, flashes: req.flash() });
+    return res.render('requestEmail', { confirmEmail: true, body: req.body, flashes: req.flash() });
   }
 
   if (user.local && user.local.isVerified) {
@@ -94,6 +94,90 @@ const resend = async (req, res, next) => {
   req.emailToken = await EmailVerifyToken.findOneOrCreate(user.id);
   req.body.username = user.username;
   return next();
+};
+
+/* Reset password */
+
+const forgotPasswordForm = (req, res) => {
+  res.render('requestEmail', { passwordReset: true });
+};
+
+const forgotPassword = async (req, res, next) => {
+  const user = await User.findOne({ 'local.email': req.body.email });
+
+  if (!user || !user.local) {
+    req.flash('info', 'An account with this email does not exist');
+    return res.render('requestEmail', { passwordReset: true, body: req.body, flashes: req.flash() });
+  }
+
+  user.passwordResetToken = crypto.randomBytes(20).toString('hex');
+  user.passwordResetExpires = Date.now() + 3600000;
+  await user.save();
+  req.emailToken = user.passwordResetToken;
+  req.body.username = user.username;
+  return next();
+};
+
+const sendResetEmail = (req, res) => {
+  const { email, username } = req.body;
+
+  mailer.send({
+    template: 'resetPassword',
+    message: {
+      to: email,
+    },
+    locals: {
+      name: username,
+      resetURL: `${req.protocol}://${req.hostname}/reset/${req.emailToken}`,
+    },
+  });
+
+  req.flash('info', `An email has been sent to ${email} with instructions to reset your password.`);
+  res.redirect('/');
+};
+
+const validResetToken = async (req, res, next) => {
+  const user = await User.findOne({ passwordResetToken: req.params.token, passwordResetExpires: { $gt: Date.now() } });
+  if (!user) {
+    req.flash('error', 'This password reset is invalid or expired. Please request a new one');
+    return res.redirect('/forgot');
+  }
+  req.user = user;
+  next();
+};
+
+const resetPasswordForm = async (req, res) => {
+  res.render('resetPassword');
+};
+
+const validatePassword = validateUserForm(userValidatorSchema('password', 'password-confirm'), 'resetPassword');
+
+const resetPassword = async (req, res, next) => {
+  const { user } = req;
+
+  user.local.password = await User.hashPassword(req.body.password);
+  user.passwordResetExpires = undefined;
+  user.passwordResetToken = undefined;
+  await user.save();
+  await req.login(user);
+  next();
+};
+
+const sendPasswordUpdatedEmail = async (req, res) => {
+  const { local: { email }, username } = req.user;
+
+  mailer.send({
+    template: 'updatedPassword',
+    message: {
+      to: email,
+    },
+    locals: {
+      name: username,
+    },
+  });
+
+  req.flash('success', 'Password has been updated');
+  res.redirect('/');
 };
 
 const getOne = async (req, res) => {
@@ -118,7 +202,15 @@ export default {
   validateNewUser,
   confirmEmail: catchAsyncError(confirmEmail),
   requestResend,
-  validateResend,
+  validateEmail,
   resend,
   sendConfirmEmail,
+  forgotPasswordForm,
+  forgotPassword: catchAsyncError(forgotPassword),
+  sendResetEmail,
+  resetPasswordForm,
+  validatePassword,
+  resetPassword: catchAsyncError(resetPassword),
+  validResetToken: catchAsyncError(validResetToken),
+  sendPasswordUpdatedEmail: catchAsyncError(sendPasswordUpdatedEmail),
 };
