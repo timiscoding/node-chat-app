@@ -239,6 +239,19 @@ td:last-child {
   padding: 10px;
 }
 
+.header {
+  display: flex;
+}
+
+.toolbar {
+  display: flex;
+  list-style: none;
+}
+
+.toolbar li {
+  margin: 0 10px;
+}
+
 .message {
   padding: 10px;
 }

@@ -1,0 +1,35 @@
+extends layout.pug
+
+block content
+  .centered
+    .centered-content
+      - body = body || {}
+      h3 Profile
+      form(method='post')
+        .form-field
+          label(for='username') Username
+          input#username(
+            type='text'
+            value=body.username
+            name='username'
+            placeholder='This will identify you in chat rooms')
+        .form-field
+          button(input='submit') Update account
+
+      h3 Accounts
+      table
+        thead
+          th Type
+          th(colspan='2') Account
+        tbody
+          each account, type in linkedAccounts
+            tr
+              td= type
+              td= account
+                if Object.keys(linkedAccounts).length > 1
+                  form(action=`/unlink/${type}` method='post')
+                    button Unlink
+
+      h3 Link additional accounts
+      each type in linkable
+        a.linkButton(href=`/link/${type}`)= type

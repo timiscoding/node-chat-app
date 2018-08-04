@@ -1,0 +1,17 @@
+html
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    meta(http-equiv='X-UA-Compatible' content='ie=edge')
+    title #{title} | Node Chat App
+    link(rel='stylesheet' href='/css/styles.css')
+    block headScripts
+  body
+    header
+      include includes/header.pug
+
+    main
+      include includes/flashes.pug
+      block content
+
+    block bodyScripts

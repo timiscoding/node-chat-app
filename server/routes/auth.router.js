@@ -16,7 +16,7 @@ export const authRouter = express.Router();
 authRouter.get('/login', authController.loginForm);
 authRouter.post('/login', authController.loginUser);
 authRouter.get('/logout', isLoggedIn, authController.logoutUser);
-authRouter.get('/profile', isLoggedIn, catchAsyncError(authController.profile));
+authRouter.get('/profile', isLoggedIn, authController.profile);
 authRouter.post('/profile', isLoggedIn, authController.validateProfile, catchAsyncError(authController.updateProfile));
 authRouter.get('/link/local', isLoggedIn, authController.linkLocalForm);
 authRouter.post('/link/local', isLoggedIn, authController.authLocal, catchAsyncError(authController.linkAccount));

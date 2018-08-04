@@ -1,0 +1,38 @@
+extends layout.pug
+
+block append bodyScripts
+  script(src='/socket.io/socket.io.js')
+  script(src='/js/vendors~chat~join.bundle.js')
+  script(src='/js/vendors~chat.bundle.js')
+  script(src='/js/chat.bundle.js')
+
+block content
+  .chat
+    .chat__sidebar
+      h3 People
+      #users
+
+    .chat__main
+      ol(id='message-list' class='chat__messages')
+
+      .chat__footer
+        form#message-form
+          input(name='message' type='text' placeholder='Message' autofocus autocomplete='off')
+          button Send
+        button#send-location Send location
+        button#leave-room Leave room
+    script#message-template(type='text/template')
+      li.message
+        .message__title
+          h4 {{from}}
+          span {{createdAt}}
+        .message__body
+          p {{text}}
+    script#location-message-template(type='textx/template')
+      li.message
+        .message__title
+          h4 {{from}}
+          span {{createdAt}}
+        .message__body
+          p: a(href='{{url}}' target='_blank') My current location
+

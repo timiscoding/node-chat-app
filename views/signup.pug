@@ -1,0 +1,30 @@
+extends layout.pug
+
+block content
+  .centered
+    - body = body || {}
+    form.centered-form__form(method='post')
+      .form-field
+        h3 Sign up
+      .form-field
+        label(for='username') Username
+        input#username(
+          type='text'
+          name='username'
+          placeholder='This will identify you in chat rooms'
+          value=body.username)
+      .form-field
+        label(for='email') Email
+        input#email(
+          type='text'
+          name='email'
+          value=body.email)
+      .form-field
+        label(for='password') Password
+        input#password(type='password' name='password')
+      .form-field
+        label(for='password-confirm') Confirm password
+        input#password-confirm(type='password' name='password-confirm')
+      .form-field
+        button(type='submit') Create account
+

@@ -1,0 +1,15 @@
+extends layout.pug
+
+block content
+  .centered
+    form.centered-form__form(method='post')
+      .form-field
+        h3 Link local account
+      .form-field
+        label(for='email') Email
+        input#email(type='text' name='email')
+      .form-field
+        label(for='password') Password
+        input#password(type='password' name='password')
+      .form-field
+        button(input='submit') Link account

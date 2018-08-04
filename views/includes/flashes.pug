@@ -1,0 +1,5 @@
+if flashes
+  .flash-messages
+    each messages, category in flashes
+      each message in messages
+        div(class=[`flash--${category}`, 'flash-message'])!= message

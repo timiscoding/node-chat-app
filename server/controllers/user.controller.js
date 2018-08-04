@@ -73,17 +73,17 @@ const confirmEmail = async (req, res) => {
 /* Resend confirmation email */
 
 const requestResend = (req, res) => {
-  res.render('requestEmail', { confirmEmail: true });
+  res.render('confirmEmail');
 };
 
-const validateEmail = validateUserForm(userValidatorSchema('email'), 'requestEmail');
+const validateEmail = validateUserForm(userValidatorSchema('email'), 'confirmEmail');
 
 const resend = async (req, res, next) => {
   const user = await User.findOne({ 'local.email': req.body.email });
 
   if (!user || !user.local) {
     req.flash('info', 'An account with this email does not exist');
-    return res.render('requestEmail', { confirmEmail: true, body: req.body, flashes: req.flash() });
+    return res.render('confirmEmail', { body: req.body, flashes: req.flash() });
   }
 
   if (user.local && user.local.isVerified) {
@@ -99,7 +99,7 @@ const resend = async (req, res, next) => {
 /* Reset password */
 
 const forgotPasswordForm = (req, res) => {
-  res.render('requestEmail', { passwordReset: true });
+  res.render('forgotPassword');
 };
 
 const forgotPassword = async (req, res, next) => {
@@ -107,7 +107,7 @@ const forgotPassword = async (req, res, next) => {
 
   if (!user || !user.local) {
     req.flash('info', 'An account with this email does not exist');
-    return res.render('requestEmail', { passwordReset: true, body: req.body, flashes: req.flash() });
+    return res.render('forgotPassword', { body: req.body, flashes: req.flash() });
   }
 
   user.passwordResetToken = crypto.randomBytes(20).toString('hex');

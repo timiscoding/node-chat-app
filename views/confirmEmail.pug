@@ -1,0 +1,14 @@
+extends layout.pug
+
+block content
+  - body = body || {}
+  .centered
+    form.centered-form__form(method='post')
+      .form-field
+        h3 Confirm email
+        p Request an email to confirm your account registration
+      .form-field
+        label(for='email') Email
+        input#email(type='text' name='email' value=body.email)
+      .form-field
+        button(input='submit') Confirm email

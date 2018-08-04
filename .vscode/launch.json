@@ -9,10 +9,11 @@
   "request": "attach",
   "name": "Attach by Process ID",
   "processId": "${command:PickProcess}",
-  "skipFiles": [
-    "${workspaceFolder}/node_modules/**/*.js",
-    "<node_internals>/**/*.js"
-  ]
+  "restart": true
+  // "skipFiles": [
+  //   "${workspaceFolder}/node_modules/**/*.js",
+  //   "<node_internals>/**/*.js"
+  // ]
 }
   ]
 }

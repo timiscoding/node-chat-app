@@ -117,8 +117,24 @@ const unlinkAccount = async (req, res, next) => {
   res.redirect('/profile');
 };
 
-const profile = async (req, res) => {
-  res.render('profile', { body: { username: req.user.username } });
+const profile = (req, res) => {
+  const { user } = req;
+
+  const linkedAccounts = Object.entries(user.toObject()).reduce((all, [type, acc]) => {
+    if ((type === 'local' && acc.email) || acc.token) {
+      all[type] = acc.email || acc.displayName;
+    }
+    return all;
+  }, {});
+
+  const linkable = ['local', 'twitter', 'google', 'facebook']
+    .filter(type => !linkedAccounts[type]);
+
+  res.render('profile', {
+    body: { username: req.user.username },
+    linkedAccounts,
+    linkable,
+  });
 };
 
 const validateProfile = validateUserForm(userValidatorSchema('username'), 'profile');
