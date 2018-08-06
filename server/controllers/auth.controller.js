@@ -131,18 +131,38 @@ const profile = (req, res) => {
     .filter(type => !linkedAccounts[type]);
 
   res.render('profile', {
-    body: { username: req.user.username },
+    body: { username: req.user.username, email: req.user.local.email },
     linkedAccounts,
     linkable,
   });
 };
 
-const validateProfile = validateUserForm(userValidatorSchema('username'), 'profile');
+const preValidateProfile = (req, res, next) => {
+  if (req.body.password) {
+    return next('route');
+  }
+  next();
+};
+
+const validateProfile = validateUserForm(userValidatorSchema('username', 'email'), 'profile');
+const validateProfilePassword = validateUserForm(userValidatorSchema('username', 'email', 'password', 'password-confirm'), 'profile');
 
 const updateProfile = async (req, res) => {
-  req.user.username = req.body.username;
+  const { username, email, password } = req.body;
+  if (username !== req.user.username) {
+    req.user.username = username;
+  }
+
+  if (req.user.local && email !== req.user.local.email) {
+    req.user.local.email = email;
+  }
+
+  if (password) {
+    req.user.local.password = await User.hashPassword(password);
+  }
+
   await req.user.save();
-  req.flash('success', 'Username updated');
+  req.flash('success', 'Account updated');
   res.redirect('/profile');
 };
 
@@ -158,4 +178,6 @@ export default {
   linkLocalForm,
   validateProfile,
   updateProfile,
+  preValidateProfile,
+  validateProfilePassword,
 };

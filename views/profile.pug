@@ -4,6 +4,8 @@ block content
   .centered
     .centered-content
       - body = body || {}
+      - linkedAccounts = linkedAccounts || {}
+      - linkable = linkable || []
       h3 Profile
       form(method='post')
         .form-field
@@ -13,6 +15,16 @@ block content
             value=body.username
             name='username'
             placeholder='This will identify you in chat rooms')
+        if body.email
+          .form-field
+            label(for='email') Email
+            input#email(type='text' name='email' value=body.email)
+        .form-field
+          label(for='password') New Password
+          input#password(type='password' name='password')
+        .form-field
+          label(for='password-confirm') Confirm new password
+          input#password-confirm(type='password' name='password-confirm')
         .form-field
           button(input='submit') Update account
 
