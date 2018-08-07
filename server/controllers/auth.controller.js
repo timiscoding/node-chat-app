@@ -114,7 +114,7 @@ const unlinkAccount = async (req, res, next) => {
     await user.save();
   }
   req.flash('success', 'Account has been unlinked');
-  res.redirect('/profile');
+  return res.redirect('/profile');
 };
 
 const profile = (req, res) => {
@@ -141,7 +141,7 @@ const preValidateProfile = (req, res, next) => {
   if (req.body.password) {
     return next('route');
   }
-  next();
+  return next();
 };
 
 const validateProfile = validateUserForm(userValidatorSchema('username', 'email'), 'profile');

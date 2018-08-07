@@ -1,5 +1,8 @@
 extends layout.pug
 
+block headScripts
+  script(src='https://www.google.com/recaptcha/api.js')
+
 block content
   - body = body || {}
   .centered
@@ -10,5 +13,6 @@ block content
       .form-field
         label(for='email') Email
         input#email(type='text' name='email' value=body.email)
+      .g-recaptcha(data-sitekey=recaptchaKey)
       .form-field
         button(input='submit') Confirm email

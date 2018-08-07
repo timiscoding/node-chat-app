@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import crypto from 'crypto';
+import rp from 'request-promise';
 
 import { userValidatorSchema, validateUserForm } from './userValidator';
 import { catchAsyncError } from '../utils/helpers';
@@ -9,10 +10,39 @@ const User = mongoose.model('User');
 const EmailVerifyToken = mongoose.model('EmailVerifyToken');
 
 const signupForm = (req, res) => {
-  res.render('signup');
+  res.render('signup', { recaptchaKey: process.env.G_RECAPTCHA_SITE_KEY });
 };
 
 const validateNewUser = validateUserForm(userValidatorSchema(), 'signup');
+
+const validateHuman = failureView => async (req, res, next) => {
+  const options = {
+    method: 'POST',
+    uri: 'https://www.google.com/recaptcha/api/siteverify',
+    formData: {
+      secret: process.env.G_RECAPTCHA_SECRET,
+      response: req.body['g-recaptcha-response'],
+    },
+    json: true,
+  };
+
+  try {
+    const captchaRes = await rp(options);
+
+    if (captchaRes.success) {
+      return next();
+    }
+  } catch (err) {
+    return next(err);
+  }
+
+  req.flash('error', 'reCaptcha failed. Please try again');
+  return res.render(failureView, {
+    body: req.body,
+    flashes: req.flash(),
+    recaptchaKey: process.env.G_RECAPTCHA_SITE_KEY,
+  });
+};
 
 const createOne = async (req, res, next) => {
   const { email, password, username } = req.body;
@@ -73,7 +103,7 @@ const confirmEmail = async (req, res) => {
 /* Resend confirmation email */
 
 const requestResend = (req, res) => {
-  res.render('confirmEmail');
+  res.render('confirmEmail', { recaptchaKey: process.env.G_RECAPTCHA_SITE_KEY });
 };
 
 const validateEmail = validateUserForm(userValidatorSchema('email'), 'confirmEmail');
@@ -99,7 +129,7 @@ const resend = async (req, res, next) => {
 /* Reset password */
 
 const forgotPasswordForm = (req, res) => {
-  res.render('forgotPassword');
+  res.render('forgotPassword', { recaptchaKey: process.env.G_RECAPTCHA_SITE_KEY });
 };
 
 const forgotPassword = async (req, res, next) => {
@@ -137,13 +167,16 @@ const sendResetEmail = (req, res) => {
 };
 
 const validResetToken = async (req, res, next) => {
-  const user = await User.findOne({ passwordResetToken: req.params.token, passwordResetExpires: { $gt: Date.now() } });
+  const user = await User.findOne({
+    passwordResetToken: req.params.token,
+    passwordResetExpires: { $gt: Date.now() },
+  });
   if (!user) {
     req.flash('error', 'This password reset is invalid or expired. Please request a new one');
     return res.redirect('/forgot');
   }
   req.user = user;
-  next();
+  return next();
 };
 
 const resetPasswordForm = async (req, res) => {
@@ -213,4 +246,5 @@ export default {
   resetPassword: catchAsyncError(resetPassword),
   validResetToken: catchAsyncError(validResetToken),
   sendPasswordUpdatedEmail: catchAsyncError(sendPasswordUpdatedEmail),
+  validateHuman,
 };

@@ -25,7 +25,12 @@ userRouter.param('id', async (req, res, next, id) => {
 
 userRouter.route('/signup')
   .get(userController.signupForm)
-  .post(userController.validateNewUser, userController.createOne, userController.sendConfirmEmail);
+  .post(
+    userController.validateNewUser,
+    userController.validateHuman('signup'),
+    userController.createOne,
+    userController.sendConfirmEmail,
+  );
 
 userRouter.route('/user/:id')
   .get(ensureLoggedIn(), userController.getOne)
@@ -34,13 +39,18 @@ userRouter.route('/user/:id')
 
 userRouter.route('/resend')
   .get(userController.requestResend)
-  .post(userController.validateEmail, userController.resend, userController.sendConfirmEmail);
+  .post(userController.validateEmail, userController.validateHuman('confirmEmail'), userController.resend, userController.sendConfirmEmail);
 userRouter.get('/confirm/:token', userController.confirmEmail);
 
 userRouter.route('/forgot')
   .get(userController.forgotPasswordForm)
-  .post(userController.validateEmail, userController.forgotPassword, userController.sendResetEmail);
+  .post(userController.validateEmail, userController.validateHuman('forgotPassword'), userController.forgotPassword, userController.sendResetEmail);
 
 userRouter.route('/reset/:token')
   .get(userController.validResetToken, userController.resetPasswordForm)
-  .post(userController.validResetToken, userController.validatePassword, userController.resetPassword, userController.sendPasswordUpdatedEmail);
+  .post(
+    userController.validResetToken,
+    userController.validatePassword,
+    userController.resetPassword,
+    userController.sendPasswordUpdatedEmail,
+  );

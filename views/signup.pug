@@ -1,5 +1,8 @@
 extends layout.pug
 
+block headScripts
+  script(src='https://www.google.com/recaptcha/api.js')
+
 block content
   .centered
     - body = body || {}
@@ -25,6 +28,7 @@ block content
       .form-field
         label(for='password-confirm') Confirm password
         input#password-confirm(type='password' name='password-confirm')
+      .g-recaptcha(data-sitekey=recaptchaKey)
       .form-field
         button(type='submit') Create account
 
