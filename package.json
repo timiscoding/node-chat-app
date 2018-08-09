@@ -64,6 +64,7 @@
     "mocha": "4.1.0",
     "mocha-webpack": "2.0.0-beta.0",
     "mustache": "2.2.1",
+    "session-file-store": "1.2.0",
     "start-server-webpack-plugin": "2.2.5",
     "webpack": "4.12.0",
     "webpack-bundle-analyzer": "2.13.1",

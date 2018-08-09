@@ -10,12 +10,12 @@ const userSchema = {
     },
     custom: {
       options: (value) => {
-        const guestRe = /^guest\d+$/i;
+        const guestRe = /^guest-\w+$/i;
         const validUserRe = /^[\w-]+$/;
         if (!validUserRe.test(value)) {
           throw new Error("Username must be letters, numbers, '_', ' -' only");
         } else if (guestRe.test(value)) {
-          throw new Error("Usernames beginning with 'guest' followed by a number are reserved for unregistered users");
+          throw new Error("Usernames beginning with 'guest-' are reserved for unregistered users");
         }
         return true;
       },

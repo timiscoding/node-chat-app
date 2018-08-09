@@ -12,7 +12,6 @@ const updateRoomInfo = ({ rooms }) => {
 $(document).ready(() => {
   $('form').submit(() => {
     const data = {
-      name: $('#name').val(),
       room: $('#room-text').val() || $('#room-select').val(),
     };
     sessionStorage.setItem('joinParams', JSON.stringify(data));

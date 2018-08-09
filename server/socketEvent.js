@@ -1,24 +1,44 @@
+import mongoose from 'mongoose';
+
 import isRealString from './utils/validation';
 import { generateMessage, generateLocationMessage } from './utils/message';
 import Users from './utils/users';
 
 const users = Users.getInstance();
+const User = mongoose.model('User');
 
 // update room list for people joining a room
 const updateUserJoining = (io) => {
   io.emit('updateRoomList', { rooms: users.getRoomList() });
 };
 
-const joinRoom = (socket, io) => socket.on('join', (params, callback) => {
+const joinRoom = (socket, io) => socket.on('join', async (params, callback) => {
   if (!isRealString(params.room)) {
     return callback('Room name required!');
   }
 
   const room = params.room.trim().toLowerCase();
-
   socket.join(room);
+
+  const { passport } = socket.handshake.session;
+  let name;
+  if (passport && passport.user) {
+    try {
+      const user = await User.findById(passport.user);
+      name = user.username;
+    } catch (err) {
+      return callback('Could not retrieve user information');
+    }
+  } else {
+    let size = -4;
+    do {
+      name = `guest-${socket.id.slice(size).toLowerCase()}`;
+      size -= 1;
+    } while (users.getUser({ name }));
+  }
+
   users.removeUser(socket.id);
-  const { name } = users.addUser(socket.id, room);
+  users.addUser(socket.id, name, room);
   io.to(room).emit('updateUserList', users.getUserList(room));
   socket.emit('newMessage', generateMessage('Admin', `Welcome to the room ${room}!`));
   socket.broadcast.to(room).emit('newMessage', generateMessage('Admin', `${name} joined the chat`));

@@ -9,7 +9,7 @@ import connect from './db';
 import './passport';
 import './mailer';
 import genSocketEvents from './socketEvent';
-import globalMiddleware from './middleware';
+import { default as globalMiddleware, session } from './middleware';
 import routes from './routes';
 
 const app = express();
@@ -24,6 +24,10 @@ app.set('view engine', 'pug');
 app.set('trust proxy', true);
 
 app.use(globalMiddleware);
+
+io.use((socket, next) => {
+  session(socket.handshake, {}, next);
+});
 
 io.on('connection', (socket) => {
   console.log('New user connected');
