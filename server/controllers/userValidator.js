@@ -8,9 +8,17 @@ const userSchema = {
       errorMessage: 'Username must not be empty',
       options: { min: 1 },
     },
-    matches: {
-      errorMessage: "Username must be letters, numbers, '_', '-' only",
-      options: /^[\w-]+$/,
+    custom: {
+      options: (value) => {
+        const guestRe = /^guest\d+$/i;
+        const validUserRe = /^[\w-]+$/;
+        if (!validUserRe.test(value)) {
+          throw new Error("Username must be letters, numbers, '_', ' -' only");
+        } else if (guestRe.test(value)) {
+          throw new Error("Usernames beginning with 'guest' followed by a number are reserved for unregistered users");
+        }
+        return true;
+      },
     },
     trim: true,
   },
@@ -61,7 +69,10 @@ const validateUserForm = (schema, view) => [
       next();
     } else {
       req.flash('error', errors.array({ onlyFirstError: true }));
-      res.render(view, { body: req.body, flashes: req.flash() });
+      res.render(view, {
+        body: req.body,
+        flashes: req.flash(),
+        recaptchaKey: process.env.G_RECAPTCHA_SITE_KEY });
     }
   },
 ];

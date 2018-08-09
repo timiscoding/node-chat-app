@@ -3,8 +3,8 @@ class UsersClass {
     this.users = [];
   }
 
-  addUser(id, name, room) {
-    const user = { id, name, room };
+  addUser(id, room) {
+    const user = { id, name: `guest${this.users.length}`, room };
     this.users.push(user);
     return user;
   }

@@ -11,10 +11,7 @@ block content
       .form-field
         h3 Join a chat
       .form-field
-        label(for='name') Display name
-        input#name(name='name' type='text' autofocus)
-      .form-field
-        label Room name #[span#active-rooms 0] active
+        label Room name (#[span#active-rooms 0] active)
         input#room-text(name='room' type='text' placeholder='Create or join a room')
         select#room-select(name='room' size='3')
       .form-field

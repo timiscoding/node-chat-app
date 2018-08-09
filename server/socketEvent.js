@@ -10,21 +10,15 @@ const updateUserJoining = (io) => {
 };
 
 const joinRoom = (socket, io) => socket.on('join', (params, callback) => {
-  if (!isRealString(params.name) || !isRealString(params.room)) {
-    return callback('Name and Room name are required!');
+  if (!isRealString(params.room)) {
+    return callback('Room name required!');
   }
 
-  const name = params.name.trim();
   const room = params.room.trim().toLowerCase();
-  const user = users.getUser({ name });
-
-  if (user && user.room === room) {
-    return callback('Username taken!');
-  }
 
   socket.join(room);
   users.removeUser(socket.id);
-  users.addUser(socket.id, name, room);
+  const { name } = users.addUser(socket.id, room);
   io.to(room).emit('updateUserList', users.getUserList(room));
   socket.emit('newMessage', generateMessage('Admin', `Welcome to the room ${room}!`));
   socket.broadcast.to(room).emit('newMessage', generateMessage('Admin', `${name} joined the chat`));
