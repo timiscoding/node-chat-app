@@ -7,11 +7,11 @@ html
     link(rel='stylesheet' href='/css/styles.css')
     block headScripts
   body
-    header
-      include includes/header.pug
+    section
+      header
+        include includes/header.pug
 
-    main
       include includes/flashes.pug
       block content
 
-    block bodyScripts
+      block bodyScripts

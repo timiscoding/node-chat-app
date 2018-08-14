@@ -6,8 +6,8 @@ block content
       - body = body || {}
       - linkedAccounts = linkedAccounts || {}
       - linkable = linkable || []
-      h3 Profile
-      form(method='post')
+      form.centered-form__form(method='post')
+        h3 Profile
         .form-field
           label(for='username') Username
           input#username(
@@ -28,20 +28,29 @@ block content
         .form-field
           button(input='submit') Update account
 
-      h3 Accounts
-      table
-        thead
-          th Type
-          th(colspan='2') Account
-        tbody
-          each account, type in linkedAccounts
-            tr
-              td= type
-              td= account
-                if Object.keys(linkedAccounts).length > 1
-                  form(action=`/unlink/${type}` method='post')
-                    button Unlink
+      .centered-form__form
+        h3 Accounts
+        table
+          thead
+            th Type
+            th(colspan='2') Account
+          tbody
+            each account, type in linkedAccounts
+              tr
+                td= type
+                td= account
+                  if Object.keys(linkedAccounts).length > 1
+                    form(action=`/unlink/${type}` method='post')
+                      button Unlink
 
-      h3 Link additional accounts
-      each type in linkable
-        a.linkButton(href=`/link/${type}`)= type
+      .centered-form__form
+        if linkable.length
+          h3 Link additional accounts
+        each type in linkable
+          a(href=`/link/${type}` class='login__link' id=`login__link--${type}`)
+            if type == 'local'
+              img(src=`images/logo-${type}.png`)
+              .login__link-text Login with Email
+            else
+              img(src=`images/logo-${type}.svg`)
+              .login__link-text Login with #{type[0].toUpperCase() + type.slice(1).toLowerCase()}

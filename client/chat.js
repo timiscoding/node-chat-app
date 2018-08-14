@@ -20,13 +20,31 @@ const scrollToBottom = () => {
   }
 };
 
+const renderMessage = (message) => {
+  const timestamp = moment(message.createdAt).calendar();
+  const template = $('#message-template').html();
+  const html = Mustache.render(template, {
+    text: message.text,
+    from: message.from,
+    createdAt: timestamp,
+  });
+
+  $('#message-list').append(html);
+  scrollToBottom();
+};
+
 socket.on('connect', () => {
   const params = JSON.parse(sessionStorage.getItem('joinParams'));
-  socket.emit('join', params, (err) => {
+  socket.emit('join', params, (err, messages) => {
     if (err) {
       alert(err);
       window.location.href = '/';
     }
+
+    messages
+      .map(msg => ({ text: msg.content, from: msg.from.username, createdAt: msg.createdAt }))
+      .forEach(renderMessage);
+    // console.log('messages', messages);
   });
 });
 
@@ -44,18 +62,7 @@ socket.on('updateUserList', (users) => {
   $('#users').html(ol);
 });
 
-socket.on('newMessage', (message) => {
-  const timestamp = moment(message.createdAt).format('h:mm a');
-  const template = $('#message-template').html();
-  const html = Mustache.render(template, {
-    text: message.text,
-    from: message.from,
-    createdAt: timestamp,
-  });
-
-  $('#message-list').append(html);
-  scrollToBottom();
-});
+socket.on('newMessage', renderMessage);
 
 socket.on('newLocationMessage', (message) => {
   const timestamp = moment(message.createdAt).format('h:mm a');

@@ -13,10 +13,18 @@ block content
         input#password(type='password' name='password')
       .form-field
         button(input='submit') Log in
+        .login__local-actions
+          a(href='/forgot') Forgot password
+          a(href='/signup') Create an account
 
-      p: a(href='/forgot') Forgot password
-      p: a(href='/signup') Create an account
-      hr
-      p: a(href='/auth/facebook') Login via Facebook
-      p: a(href='/auth/twitter') Login via Twitter
-      p: a(href='/auth/google') Login via Google
+      .hr-sect OR
+
+      a(href='/auth/facebook' class='login__link' id='login__link--facebook')
+        img(src='/images/logo-facebook.svg')
+        .login__link-text Login with Facebook
+      a(href='/auth/twitter' class='login__link' id='login__link--twitter')
+        img(src='/images/logo-twitter.svg')
+        .login__link-text Login with Twitter
+      a(href='/auth/google' class='login__link' id='login__link--google')
+        img(src='images/logo-google.svg')
+        .login__link-text Login with Google

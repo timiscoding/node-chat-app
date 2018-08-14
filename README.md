@@ -5,6 +5,7 @@ A realtime chat app that lets users join rooms with the ability to send their lo
 ## Enhancements
 My own additions to the project
 
+* chat history persisted to mongo
 * Email account confirmation, password reset and captcha
 * User login system (local and oauth) with account linking
 * Bundling server and client with webpack, refactoring to ES6 and eslinting
