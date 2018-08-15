@@ -16,7 +16,7 @@ describe.only('POST /signup', () => {
   };
 
   before(async () => {
-    await mongoose.connect(process.env.DB_URL);
+    await mongoose.connect(process.env.MONGODB_URI);
   });
 
   beforeEach(async () => {
