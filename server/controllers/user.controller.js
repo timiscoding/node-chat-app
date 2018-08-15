@@ -59,7 +59,11 @@ const createOne = async (req, res, next) => {
       const keys = Object.keys(err.errors);
       const flashes = keys.map(key => err.errors[key].message);
       req.flash('error', flashes);
-      res.render('signup', { body: { username, email }, flashes: req.flash() });
+      res.render('signup', {
+        body: { username, email },
+        flashes: req.flash(),
+        recaptchaKey: process.env.G_RECAPTCHA_SITE_KEY,
+      });
     } else {
       next(err);
     }

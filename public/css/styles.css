@@ -281,9 +281,14 @@ td:last-child {
 }
 
 .login__local-actions {
-  margin-top: 5px;
+  margin-top: 10px;
   display: flex;
   justify-content: space-between;
+}
+
+.login__local-actions a {
+  color: #265f82;
+  text-decoration: none;
 }
 
 .login__link {

@@ -1,4 +1,4 @@
-(window["webpackJsonp"] = window["webpackJsonp"] || []).push([["vendors~join"],{
+(window["webpackJsonp"] = window["webpackJsonp"] || []).push([["vendors~chat~join~profile"],{
 
 /***/ "./node_modules/jquery/dist/jquery.js":
 /*!********************************************!*\
@@ -10377,4 +10377,4 @@ return jQuery;
 /***/ })
 
 }]);
-//# sourceMappingURL=vendors~join.bundle.js.map
+//# sourceMappingURL=vendors~chat~join~profile.bundle.js.map

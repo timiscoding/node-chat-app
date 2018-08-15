@@ -17,11 +17,11 @@ const email = new Email({
   juice: true,
   juiceResources: {
     webResources: {
-      relativeTo: path.join(__dirname, '../views/emails/build'),
+      relativeTo: path.join(__dirname, '../../views/emails/build'),
     },
   },
   views: {
-    root: path.join(__dirname, '../views/emails'),
+    root: path.join(__dirname, '../../views/emails'),
   },
 });
 

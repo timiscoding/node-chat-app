@@ -12,7 +12,7 @@ routes.get('/', (req, res) => {
 });
 
 routes.post('/chat', (req, res) => {
-  res.render('chat', { title: 'Chat' });
+  res.render('chat', { title: 'Chat', room: req.body.room });
 });
 
 // handle mongoose validation errors

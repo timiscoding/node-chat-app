@@ -17,8 +17,14 @@ authRouter.get('/login', authController.loginForm);
 authRouter.post('/login', authController.loginUser);
 authRouter.get('/logout', isLoggedIn, authController.logoutUser);
 authRouter.get('/profile', isLoggedIn, authController.profile);
-authRouter.post('/profile', isLoggedIn, authController.preValidateProfile, authController.validateProfile, catchAsyncError(authController.updateProfile));
-authRouter.post('/profile', authController.validateProfilePassword, catchAsyncError(authController.updateProfile));
+authRouter.post('/profile', [
+  isLoggedIn,
+  authController.validateUsername,
+  authController.validateEmail,
+  authController.validatePassword,
+  catchAsyncError(authController.updateProfile),
+]);
+
 authRouter.get('/link/local', isLoggedIn, authController.linkLocalForm);
 authRouter.post('/link/local', isLoggedIn, authController.authLocal, catchAsyncError(authController.linkAccount));
 authRouter.post('/unlink/:account', isLoggedIn, catchAsyncError(authController.unlinkAccount));

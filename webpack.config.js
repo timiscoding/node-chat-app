@@ -15,6 +15,7 @@ module.exports = ({ mode, presets = [] } = { mode: 'production', presets: [] }) 
         entry: {
           chat: './client/chat.js',
           join: './client/join.js',
+          profile: './client/profile.js',
         },
         output: {
           path: path.join(__dirname, 'public/js'),

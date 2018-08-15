@@ -61,7 +61,6 @@ const joinRoom = (socket, io) => socket.on('join', async (params, callback) => {
   users.removeUser(socket.id);
   users.addUser(socket.id, name, roomName, mongoUserId);
   io.to(roomName).emit('updateUserList', users.getUserList(roomName));
-  socket.emit('newMessage', generateMessage('Admin', `Welcome to the room ${roomName}!`));
   socket.broadcast.to(roomName).emit('newMessage', generateMessage('Admin', `${name} joined the chat`));
 
   updateUserJoining(io);

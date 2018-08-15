@@ -61,19 +61,24 @@ const userSchema = {
 const userValidatorSchema = (...fields) =>
   (fields.length ? _.pick(userSchema, fields) : userSchema);
 
-const validateUserForm = (schema, view) => [
-  checkSchema(schema),
+const validateUserForm = (schema, view, isOptional) => [
+  isOptional ? checkSchema(schema).map(chain => chain.optional()) : checkSchema(schema),
   (req, res, next) => {
     const errors = validationResult(req).formatWith(({ msg }) => msg);
     if (errors.isEmpty()) {
-      next();
-    } else {
-      req.flash('error', errors.array({ onlyFirstError: true }));
-      res.render(view, {
+      return next();
+    }
+
+    req.flash('error', errors.array({ onlyFirstError: true }));
+
+    if (view) {
+      return res.render(view, {
         body: req.body,
         flashes: req.flash(),
-        recaptchaKey: process.env.G_RECAPTCHA_SITE_KEY });
+        recaptchaKey: process.env.G_RECAPTCHA_SITE_KEY,
+      });
     }
+    return res.redirect('back');
   },
 ];
 

@@ -137,15 +137,9 @@ const profile = (req, res) => {
   });
 };
 
-const preValidateProfile = (req, res, next) => {
-  if (req.body.password) {
-    return next('route');
-  }
-  return next();
-};
-
-const validateProfile = validateUserForm(userValidatorSchema('username', 'email'), 'profile');
-const validateProfilePassword = validateUserForm(userValidatorSchema('username', 'email', 'password', 'password-confirm'), 'profile');
+const validateEmail = validateUserForm(userValidatorSchema('email'), null, true);
+const validateUsername = validateUserForm(userValidatorSchema('username'), null, true);
+const validatePassword = validateUserForm(userValidatorSchema('password', 'password-confirm'), null, true);
 
 const updateProfile = async (req, res) => {
   const { username, email, password } = req.body;
@@ -176,8 +170,8 @@ export default {
   linkAccount,
   unlinkAccount,
   linkLocalForm,
-  validateProfile,
   updateProfile,
-  preValidateProfile,
-  validateProfilePassword,
+  validateEmail,
+  validatePassword,
+  validateUsername,
 };

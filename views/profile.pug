@@ -1,5 +1,8 @@
 extends layout.pug
 
+block append bodyScripts
+  script(src='/js/profile.bundle.js')
+
 block content
   .centered
     .centered-content
@@ -19,12 +22,8 @@ block content
           .form-field
             label(for='email') Email
             input#email(type='text' name='email' value=body.email)
-        .form-field
-          label(for='password') New Password
-          input#password(type='password' name='password')
-        .form-field
-          label(for='password-confirm') Confirm new password
-          input#password-confirm(type='password' name='password-confirm')
+          div.password-form
+            a#password-change(href='#') Change password
         .form-field
           button(input='submit') Update account
 
@@ -54,3 +53,11 @@ block content
             else
               img(src=`images/logo-${type}.svg`)
               .login__link-text Login with #{type[0].toUpperCase() + type.slice(1).toLowerCase()}
+
+  script#password-change-template(type='text/template')
+    .form-field
+      label(for='password') New Password
+      input#password(type='password' name='password')
+    .form-field
+      label(for='password-confirm') Confirm new password
+      input#password-confirm(type='password' name='password-confirm')

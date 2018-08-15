@@ -9,7 +9,7 @@ block append bodyScripts
 block content
   .chat
     .chat__sidebar
-      h3 People
+      h3 #{room}
       #users
 
     .chat__main
@@ -28,7 +28,7 @@ block content
           span {{createdAt}}
         .message__body
           p {{text}}
-    script#location-message-template(type='textx/template')
+    script#location-message-template(type='text/template')
       li.message
         .message__title
           h4 {{from}}
