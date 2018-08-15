@@ -9,6 +9,7 @@
     "dev:email": "DEBUG=email-templates npm run dev",
     "prod": "npm run clean && webpack --env.mode production",
     "prod:analyze": "npm run prod -- --env.presets analyze",
+    "start:test": "node -r dotenv/config server/dist/server.bundle.js dotenv_config_path=.env.dev",
     "start": "node server/dist/server.bundle.js",
     "test": "mocha-webpack --webpack-config build-utils/webpack.testing.js \"server/**/*.test.js\"",
     "test:watch": "npm test -- -w"
@@ -54,6 +55,7 @@
     "babel-register": "6.26.0",
     "chai": "4.1.2",
     "chai-http": "4.0.0",
+    "dotenv": "6.0.0",
     "dotenv-webpack": "1.5.7",
     "eslint": "4.19.1",
     "eslint-config-airbnb-base": "12.1.0",

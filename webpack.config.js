@@ -3,7 +3,6 @@ const nodeExternals = require('webpack-node-externals');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
 
-const WebpackFileDirnamePlugin = require('./build-utils/WebpackFileDirnamePlugin');
 const presetsConfig = require('./build-utils/loadPresets');
 
 const modeConfig = mode => require(`./build-utils/webpack.${mode}.js`);
@@ -63,9 +62,6 @@ module.exports = ({ mode, presets = [] } = { mode: 'production', presets: [] }) 
           __dirname: false,
         },
         externals: [nodeExternals({ whitelist: [new RegExp('webpack/hot/poll')] })],
-        plugins: [
-          new WebpackFileDirnamePlugin(),
-        ],
       },
     },
     modeConfig(mode),

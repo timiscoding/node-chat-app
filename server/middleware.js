@@ -26,7 +26,7 @@ if (process.env.NODE_ENV === 'production') {
 export const session = Session(sessionConfig);
 
 export default [
-  express.static(path.join(__dirname, '../public')),
+  express.static(path.join(__dirname, '../../public')),
   bodyParser.json(),
   bodyParser.urlencoded({ extended: true }),
   session,
