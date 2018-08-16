@@ -44,7 +44,6 @@ socket.on('connect', () => {
     messages
       .map(msg => ({ text: msg.content, from: msg.from && msg.from.username || '<deleted user>', createdAt: msg.createdAt }))
       .forEach(renderMessage);
-    // console.log('messages', messages);
   });
 });
 

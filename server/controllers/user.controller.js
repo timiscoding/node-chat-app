@@ -48,7 +48,7 @@ const createOne = async (req, res, next) => {
   const { email, password, username } = req.body;
   try {
     const user = await User.create({
-      local: { email, password: await User.hashPassword(password) },
+      local: { email, password: await User.hashPassword(password), isVerified: false },
       username,
     });
 
