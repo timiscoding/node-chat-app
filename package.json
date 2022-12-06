@@ -28,7 +28,7 @@
     "connect-mongo": "2.0.1",
     "email-templates": "4.0.1",
     "es6-promisify": "6.0.0",
-    "express": "4.14.0",
+    "express": "4.17.3",
     "express-session": "1.15.6",
     "express-validator": "5.2.0",
     "hbs": "4.0.1",
